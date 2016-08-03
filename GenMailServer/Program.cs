@@ -18,20 +18,77 @@ namespace GenMailServer
         public static string LinkString1;
         public static string LinkString2;
         public static int EmailRete = 30;
+        public static string strLocalAdd = ".\\Config.xml";
+        public static Boolean boolClockShow = false;
+        public static Timer t;
+        public static Timer tClock;
+        public static Boolean boolProcess = false;
+        public static int intMainRate = 60;
+        public static int intSecondShow = 60;
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Timer t = new Timer(TimerCallback, null, 0, 60000);
-
-            bool boolstatus = false;
+            t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
+            tClock = new Timer(TimerClockShow, null, 0, 1000);
+            intSecondShow = intMainRate;
             Console.WriteLine("Welcome to GMS-General Mail Server");
-            Console.WriteLine("Reading Config File ...");
-            string strLocalAdd = ".\\Config.xml";
+            
+            Console.ReadLine();
+        }
+        private static void TransToLocal(DataTable dt)
+        {
+            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
+            foreach(DataRow row in dt.Rows)
+            {
+                string strSQL = "insert into MailQueues(MailSubject,MailBody,MailTargetAddress,MailDateTime) ";
+                strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#) ";
+                ah.ExecuteNonQuery(strSQL); 
+            }
+        }
+
+        private static void TimerClockShow(object o)
+        {
+            if(intSecondShow > 0)
+            {
+                intSecondShow--;
+            }
+            else
+            {
+                intSecondShow = intMainRate;
+            }
+
+            if(!boolProcess)
+            {
+                if (!boolClockShow)
+                {
+                    Console.WriteLine("");
+                    Console.Write("Now is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
+                    boolClockShow = true;
+                }
+                else
+                {
+                    Console.Write("\rNow is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
+                }
+            }
+            GC.Collect();
+        }
+
+        private static void TimerCallback(Object o)
+        {
+            // Display the date/time when this method got called.
+            //Console.WriteLine("In TimerCallback: " + DateTime.Now);
+            // Force a garbage collection to occur for this demo.
+            Console.WriteLine("");
+            Console.WriteLine("Running Main Method...");
+            boolClockShow = false;
+            boolProcess = true;
+            bool boolstatus = false;
             emailHelper.emailHelper eh = new emailHelper.emailHelper();
             if (File.Exists(strLocalAdd))
             {
                 try
                 {
+                    Console.WriteLine("Reading Config File ...");
                     XmlDocument xmlCon = new XmlDocument();
                     xmlCon.Load(strLocalAdd);
                     XmlNode xnCon = xmlCon.SelectSingleNode("Config");
@@ -41,7 +98,8 @@ namespace GenMailServer
                     LinkString1 = xnCon.SelectSingleNode("LinkString1").InnerText;
                     LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;
                     EmailRete = int.Parse(xnCon.SelectSingleNode("EmailRate").InnerText);
-                    if(AccessHelper.AccessHelper.CheckDB(GenLinkString,GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1,LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
+                    Console.WriteLine("Reading Config File Successfully...");
+                    if (AccessHelper.AccessHelper.CheckDB(GenLinkString, GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1, LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
                     {
                         boolstatus = true;
                     }
@@ -61,7 +119,7 @@ namespace GenMailServer
                 boolstatus = false;
                 Console.WriteLine("Error:Config File Lost!");
             }
-            if(boolstatus)
+            if (boolstatus)
             {
                 try
                 {
@@ -73,7 +131,7 @@ namespace GenMailServer
                     strSQL = "delete from " + LinkCheckStr;
                     ah.ExecuteNonQuery(strSQL);
 
-                    Console.WriteLine("Trans Data to Local DB from LinkString1...");
+                    Console.WriteLine("Trans Data to Local DB from LinkString2...");
                     ah = new AccessHelper.AccessHelper(LinkString2);
                     strSQL = "select * from " + LinkCheckStr;
                     dtSQL = ah.ReturnDataTable(strSQL);
@@ -86,11 +144,11 @@ namespace GenMailServer
                     strSQL = "select * from " + GenCheckStr;
                     dtSQL = ah.ReturnDataTable(strSQL);
                     int i = 0;
-                    foreach(DataRow row in dtSQL.Rows)
+                    foreach (DataRow row in dtSQL.Rows)
                     {
                         i++;
                         string strMailResult = emailHelper.emailHelper.SendEmail(row["MailSubject"].ToString(), row["MailBody"].ToString(), row["MailTargetAddress"].ToString());
-                        if(strMailResult== "Success!")
+                        if (strMailResult == "Success!")
                         {
                             Console.WriteLine("The " + i + " Mail has been sent successfully!");
                             string strInSQL = "insert into MailHistory(MailSubject,MailBody,MailTargetAddress,MailDateTime,SendDateTime) ";
@@ -117,24 +175,8 @@ namespace GenMailServer
             {
                 Console.WriteLine("Error:" + "Some Boolean Values is False!");
             }
-            Console.ReadLine();
-        }
-        private static void TransToLocal(DataTable dt)
-        {
-            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
-            foreach(DataRow row in dt.Rows)
-            {
-                string strSQL = "insert into MailQueues(MailSubject,MailBody,MailTargetAddress,MailDateTime) ";
-                strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#) ";
-                ah.ExecuteNonQuery(strSQL); 
-            }
-        }
-
-        private static void TimerCallback(Object o)
-        {
-            // Display the date/time when this method got called.
-            Console.WriteLine("In TimerCallback: " + DateTime.Now);
-            // Force a garbage collection to occur for this demo.
+            boolProcess = false;
+            Console.WriteLine("End Running...");
             GC.Collect();
         }
     }
