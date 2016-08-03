@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Config>
-  <LinkString1>Server=localhost;user id=root;password=;Database=chenkuserdb37;Port=3308;charset=utf8;</LinkString1>
-  <LinkString2>Server=localhost;user id=root;password=;Database=chenkuserdb37;Port=3308;charset=utf8;</LinkString2>
-  <EmailID>gzsjysczyy</EmailID>
-  <EmailPWD>8223350808</EmailPWD>
-  <EmailAddress>gzsjysczyy@163.com</EmailAddress>
-  <EmailSMTP>smtp.163.com</EmailSMTP>
+  <LinkString1>E:\workstation\项目\用蝶项目\Tiffany\转货管理系统\BHair\bin\Debug\转货数据库.accdb</LinkString1>
+  <LinkString2>E:\workstation\项目\用蝶项目\Tiffany\员工内购\BHair\bin\Debug\员工内购数据库.accdb</LinkString2>
+  <EmailID>owdely@tom.com</EmailID>
+  <EmailPWD>1q2w3e4r</EmailPWD>
+  <EmailAddress>owdely@tom.com</EmailAddress>
+  <EmailSMTP>smtp.tom.com</EmailSMTP>
+  <EmailRate>30</EmailRate>
 </Config>

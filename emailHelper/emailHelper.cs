@@ -99,7 +99,7 @@ namespace emailHelper
                     Message.IsBodyHtml = true;
                     client.Send(Message);
                 }
-                catch (Exception ex)
+                catch (System.Net.Mail.SmtpException ex)
                 {
                     return "Error:" + ex.ToString();
                 }

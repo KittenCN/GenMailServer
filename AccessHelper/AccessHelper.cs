@@ -46,7 +46,7 @@ namespace AccessHelper
         public AccessHelper(string FilePath)
         {
             ToFullRootPath(FilePath);
-            ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + AccessPath;
+            ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + AccessPath;
             connect = new OleDbConnection(ConnectionString);
         }
         /// <summary>
@@ -58,7 +58,7 @@ namespace AccessHelper
         {
             accesspwd = PassWord;
             ToFullRootPath(FilePath);
-            ConnectionString = string.Format("Provider=Microsoft.Jet.OleDb.4.0;Data Source={0};User ID=Admin;Jet OLEDB:Database Password={1};", AccessPath, accesspwd);
+            ConnectionString = string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};User ID=Admin;Jet OLEDB:Database Password={1};", AccessPath, accesspwd);
             connect = new OleDbConnection(ConnectionString);
         }
         #endregion
@@ -119,7 +119,7 @@ namespace AccessHelper
             {
                 connect.Open();
             }
-            catch
+            catch(Exception ex)
             {
                 connect.Close();
                 return false;
@@ -406,5 +406,32 @@ namespace AccessHelper
             }
         }
         #endregion
+
+        #region[数据库及数据表测试]
+        public static Boolean CheckDB(string strDBAddress,string strTableName)
+        {
+            Boolean boolResult = false;
+            AccessHelper ah = new AccessHelper(strDBAddress);
+            if (ah.ConnectTest())
+            {
+                string strSQL = "select * from " + strTableName;
+                DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                if (dtSQL.Rows.Count >= 0)
+                {
+                    boolResult = true;
+                }
+                else
+                {
+                    boolResult = false;
+                }
+            }
+            else
+            {
+                boolResult = false;
+            }
+            return boolResult;
+        }
+        #endregion
+
     }
 }
