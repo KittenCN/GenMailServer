@@ -25,6 +25,7 @@ namespace GenMailServer
         public static Boolean boolProcess = false;
         public static int intMainRate = 60;
         public static int intSecondShow = 60;
+        public static int intEmailTestFlag = 0;
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -80,6 +81,7 @@ namespace GenMailServer
             // Force a garbage collection to occur for this demo.
             Console.WriteLine("");
             Console.WriteLine("Running Main Method...");
+
             boolClockShow = false;
             boolProcess = true;
             bool boolstatus = false;
@@ -98,7 +100,24 @@ namespace GenMailServer
                     LinkString1 = xnCon.SelectSingleNode("LinkString1").InnerText;
                     LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;
                     EmailRete = int.Parse(xnCon.SelectSingleNode("EmailRate").InnerText);
+                    intEmailTestFlag = int.Parse(xnCon.SelectSingleNode("EmailTestFlag").InnerText);
                     Console.WriteLine("Reading Config File Successfully...");
+
+                    if (intEmailTestFlag == 1)
+                    {
+                        Console.WriteLine("Debug Mode Open...");
+                        string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", "candy.lv@longint.net");
+                        if (strDebugResult == "Success!")
+                        {
+                            Console.WriteLine("The Debug Mail has been sent successfully!");
+                            Thread.Sleep(EmailRete * 1000);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Error:" + strDebugResult);
+                        }
+                    }
+
                     if (AccessHelper.AccessHelper.CheckDB(GenLinkString, GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1, LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
                     {
                         boolstatus = true;
