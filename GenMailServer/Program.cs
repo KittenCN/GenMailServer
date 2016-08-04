@@ -45,6 +45,7 @@ namespace GenMailServer
                     LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;
                     EmailRete = int.Parse(xnCon.SelectSingleNode("EmailRate").InnerText);
                     intEmailTestFlag = int.Parse(xnCon.SelectSingleNode("EmailTestFlag").InnerText);
+                    intMainRate = int.Parse(xnCon.SelectSingleNode("MainRate").InnerText);
                     Console.WriteLine("Reading Config File Successfully...");
                 }
                 catch (Exception ex)
