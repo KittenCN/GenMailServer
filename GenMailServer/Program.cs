@@ -26,6 +26,7 @@ namespace GenMailServer
         public static int intMainRate = 60;
         public static int intSecondShow = 60;
         public static int intEmailTestFlag = 0;
+        public static string strEmailTestAddress = "owdely@163.com";
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -46,6 +47,7 @@ namespace GenMailServer
                     EmailRete = int.Parse(xnCon.SelectSingleNode("EmailRate").InnerText);
                     intEmailTestFlag = int.Parse(xnCon.SelectSingleNode("EmailTestFlag").InnerText);
                     intMainRate=int.Parse(xnCon.SelectSingleNode("MainRate").InnerText);
+                    strEmailTestAddress = xnCon.SelectSingleNode("EmailTestAddress").InnerText;
                     Console.WriteLine("Reading Config File Successfully...");
                 }
                 catch (Exception ex)
@@ -117,7 +119,7 @@ namespace GenMailServer
                 if (intEmailTestFlag == 1)
                 {
                     Console.WriteLine("Debug Mode Open...");
-                    string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", "candy.lv@longint.net");
+                    string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", strEmailTestAddress);
                     if (strDebugResult == "Success!")
                     {
                         Console.WriteLine("The Debug Mail has been sent successfully!");
