@@ -17,7 +17,7 @@ namespace GenMailServer
         public static string LinkCheckStr = "MailTrans";
         public static string LinkString1;
         public static string LinkString2;
-        public static int EmailRete = 30;
+        public static int EmailRete = 10;
         public static string strLocalAdd = ".\\Config.xml";
         public static Boolean boolClockShow = false;
         public static Timer t;
@@ -27,6 +27,8 @@ namespace GenMailServer
         public static int intSecondShow = 60;
         public static int intEmailTestFlag = 0;
         public static string strEmailTestAddress = "owdely@163.com";
+        public static Boolean boolSilentTimeShow = false;
+        public static int intSilentTime = 10;
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
@@ -59,6 +61,7 @@ namespace GenMailServer
             {
                 Console.WriteLine("Error:Config File Lost!");
             }
+            intSilentTime = EmailRete;
             intSecondShow = intMainRate;
             t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
             tClock = new Timer(TimerClockShow, null, 0, 1000);
@@ -74,7 +77,7 @@ namespace GenMailServer
                 ah.ExecuteNonQuery(strSQL);
             }
         }
-
+         
         private static void TimerClockShow(object o)
         {
             if (intSecondShow > 0)
@@ -85,7 +88,14 @@ namespace GenMailServer
             {
                 intSecondShow = intMainRate;
             }
-
+            //if (intSilentTime > 0)
+            //{
+            //    intSilentTime--;
+            //}
+            //else
+            //{
+            //    intSilentTime = EmailRete;
+            //}
             if (!boolProcess)
             {
                 if (!boolClockShow)
@@ -99,6 +109,11 @@ namespace GenMailServer
                     Console.Write("\rNow is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
                 }
             }
+            //else if(boolProcess && boolSilentTimeShow)
+            //{
+            //    Console.WriteLine("");
+            //    Console.Write("\rSilent Time : " + intSilentTime + " Sec Left...");
+            //}
             GC.Collect();
         }
 
