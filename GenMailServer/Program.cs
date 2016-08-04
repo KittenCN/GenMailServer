@@ -29,27 +29,52 @@ namespace GenMailServer
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("Welcome to GMS-General Mail Server");
+            if (File.Exists(strLocalAdd))
+            {
+                try
+                {
+                    Console.WriteLine("Reading Config File ...");
+                    XmlDocument xmlCon = new XmlDocument();
+                    xmlCon.Load(strLocalAdd);
+                    XmlNode xnCon = xmlCon.SelectSingleNode("Config");
+                    GenLinkString = "./DB/GenMailServer.accdb";
+                    GenCheckStr = "MailQueues";
+                    LinkCheckStr = "MailTrans";
+                    LinkString1 = xnCon.SelectSingleNode("LinkString1").InnerText;
+                    LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;
+                    EmailRete = int.Parse(xnCon.SelectSingleNode("EmailRate").InnerText);
+                    intEmailTestFlag = int.Parse(xnCon.SelectSingleNode("EmailTestFlag").InnerText);
+                    Console.WriteLine("Reading Config File Successfully...");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error:" + ex.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine("Error:Config File Lost!");
+            }
+            intSecondShow = intMainRate;
             t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
             tClock = new Timer(TimerClockShow, null, 0, 1000);
-            intSecondShow = intMainRate;
-            Console.WriteLine("Welcome to GMS-General Mail Server");
-            
             Console.ReadLine();
         }
         private static void TransToLocal(DataTable dt)
         {
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
-            foreach(DataRow row in dt.Rows)
+            foreach (DataRow row in dt.Rows)
             {
                 string strSQL = "insert into MailQueues(MailSubject,MailBody,MailTargetAddress,MailDateTime) ";
                 strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#) ";
-                ah.ExecuteNonQuery(strSQL); 
+                ah.ExecuteNonQuery(strSQL);
             }
         }
 
         private static void TimerClockShow(object o)
         {
-            if(intSecondShow > 0)
+            if (intSecondShow > 0)
             {
                 intSecondShow--;
             }
@@ -58,7 +83,7 @@ namespace GenMailServer
                 intSecondShow = intMainRate;
             }
 
-            if(!boolProcess)
+            if (!boolProcess)
             {
                 if (!boolClockShow)
                 {
@@ -86,57 +111,36 @@ namespace GenMailServer
             boolProcess = true;
             bool boolstatus = false;
             emailHelper.emailHelper eh = new emailHelper.emailHelper();
-            if (File.Exists(strLocalAdd))
+            try
             {
-                try
+                if (intEmailTestFlag == 1)
                 {
-                    Console.WriteLine("Reading Config File ...");
-                    XmlDocument xmlCon = new XmlDocument();
-                    xmlCon.Load(strLocalAdd);
-                    XmlNode xnCon = xmlCon.SelectSingleNode("Config");
-                    GenLinkString = "./DB/GenMailServer.accdb";
-                    GenCheckStr = "MailQueues";
-                    LinkCheckStr = "MailTrans";
-                    LinkString1 = xnCon.SelectSingleNode("LinkString1").InnerText;
-                    LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;
-                    EmailRete = int.Parse(xnCon.SelectSingleNode("EmailRate").InnerText);
-                    intEmailTestFlag = int.Parse(xnCon.SelectSingleNode("EmailTestFlag").InnerText);
-                    Console.WriteLine("Reading Config File Successfully...");
-
-                    if (intEmailTestFlag == 1)
+                    Console.WriteLine("Debug Mode Open...");
+                    string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", "candy.lv@longint.net");
+                    if (strDebugResult == "Success!")
                     {
-                        Console.WriteLine("Debug Mode Open...");
-                        string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", "candy.lv@longint.net");
-                        if (strDebugResult == "Success!")
-                        {
-                            Console.WriteLine("The Debug Mail has been sent successfully!");
-                            Thread.Sleep(EmailRete * 1000);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Error:" + strDebugResult);
-                        }
-                    }
-
-                    if (AccessHelper.AccessHelper.CheckDB(GenLinkString, GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1, LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
-                    {
-                        boolstatus = true;
+                        Console.WriteLine("The Debug Mail has been sent successfully!");
+                        Thread.Sleep(EmailRete * 1000);
                     }
                     else
                     {
-                        boolstatus = false;
+                        Console.WriteLine("Error:" + strDebugResult);
                     }
                 }
-                catch (Exception ex)
+
+                if (AccessHelper.AccessHelper.CheckDB(GenLinkString, GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1, LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
+                {
+                    boolstatus = true;
+                }
+                else
                 {
                     boolstatus = false;
-                    Console.WriteLine("Error:" + ex.ToString());
                 }
             }
-            else
+            catch (Exception ex)
             {
                 boolstatus = false;
-                Console.WriteLine("Error:Config File Lost!");
+                Console.WriteLine("Error:" + ex.ToString());
             }
             if (boolstatus)
             {
