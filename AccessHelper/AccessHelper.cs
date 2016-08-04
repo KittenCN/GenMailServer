@@ -414,26 +414,40 @@ namespace AccessHelper
             AccessHelper ah = new AccessHelper(strDBAddress);
             if (ah.ConnectTest())
             {
-                string strSQL = "select * from " + strTableName;
-                DataTable dtSQL = ah.ReturnDataTable(strSQL);
-                if (dtSQL.Rows.Count >= 0)
+                try
                 {
-                    boolResult = true;
-                }
-                else
-                {
-                    //boolResult = false;
-                    try
+                    string strSQL = "select * from " + strTableName;
+                    DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                    if (dtSQL.Rows.Count >= 0)
                     {
-                        Console.WriteLine("Can not found MailTrans table , system will try to create it...");
-                        string strInSQL = "create table MailTrans (id autoincrement,MailSubject longtext,MailBody longtext,MailTargetAddress longtext,Flag int)";
-                        Console.WriteLine("Create the MailTrans table successfully.");
-                        ah.ExecuteNonQuery(strInSQL);
                         boolResult = true;
                     }
-                    catch(Exception ex)
+                    else
                     {
-                        Console.WriteLine("Error:" + ex.ToString());
+                        boolResult = false;
+                    }
+                }
+                catch(Exception ex1)
+                {
+                    if(ex1.HResult.ToString()== "-2147217865")
+                    {
+                        try
+                        {
+                            Console.WriteLine("Can not found MailTrans table , system will try to create it...");
+                            string strInSQL = "create table MailTrans(id autoincrement,MailSubject longtext,MailBody longtext,MailTargetAddress longtext,Flag int)";
+                            Console.WriteLine("Create the MailTrans table successfully.");
+                            ah.ExecuteNonQuery(strInSQL);
+                            boolResult = true;
+                        }
+                        catch (Exception ex2)
+                        {
+                            Console.WriteLine("Error:" + ex2.ToString());
+                            boolResult = false;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error:" + ex1.ToString());
                         boolResult = false;
                     }
                 }

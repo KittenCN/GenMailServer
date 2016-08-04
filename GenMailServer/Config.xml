@@ -7,6 +7,6 @@
   <EmailAddress>owdely@vip.163.com</EmailAddress>
   <EmailSMTP>smtp.vip.163.com</EmailSMTP>
   <EmailRate>10</EmailRate>       <!--邮件发送间隔,按邮件服务器相关配置设置,默认10秒-->
-  <MainRate>60</MainRate>         <!--主事件轮询间隔,默认60秒-->
-  <EmailTestFlag>1</EmailTestFlag>
+  <MainRate>1800</MainRate>         <!--主事件轮询间隔,默认1800秒-->
+  <EmailTestFlag>0</EmailTestFlag>
 </Config>
