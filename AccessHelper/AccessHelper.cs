@@ -422,7 +422,20 @@ namespace AccessHelper
                 }
                 else
                 {
-                    boolResult = false;
+                    //boolResult = false;
+                    try
+                    {
+                        Console.WriteLine("Can not found MailTrans table , system will try to create it...");
+                        string strInSQL = "create table MailTrans (id autoincrement,MailSubject longtext,MailBody longtext,MailTargetAddress longtext,Flag int)";
+                        Console.WriteLine("Create the MailTrans table successfully.");
+                        ah.ExecuteNonQuery(strInSQL);
+                        boolResult = true;
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Error:" + ex.ToString());
+                        boolResult = false;
+                    }
                 }
             }
             else
