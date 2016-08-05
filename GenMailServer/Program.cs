@@ -32,7 +32,31 @@ namespace GenMailServer
         static void Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WindowWidth = 120;
+            Console.WindowHeight = 33;
             Console.WriteLine("Welcome to GMS-General Mail Server");
+            Console.BackgroundColor = ConsoleColor.Blue;            
+            Console.WriteLine("");
+            for(int i=0;i<10;i++)
+            {
+                if(i%2==0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("\rDO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!");
+                    Thread.Sleep(500);
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.Write("\rDO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!");
+                    Thread.Sleep(500);
+                }
+            }
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("\rDO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!");
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine("");
             if (File.Exists(strLocalAdd))
             {
                 try
@@ -51,6 +75,12 @@ namespace GenMailServer
                     intMainRate=int.Parse(xnCon.SelectSingleNode("MainRate").InnerText);
                     strEmailTestAddress = xnCon.SelectSingleNode("EmailTestAddress").InnerText;
                     Console.WriteLine("Reading Config File Successfully...");
+
+                    intSilentTime = EmailRete;
+                    intSecondShow = intMainRate;
+                    Console.WriteLine("Begin Timer Methods...");
+                    t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
+                    tClock = new Timer(TimerClockShow, null, 0, 1000);
                 }
                 catch (Exception ex)
                 {
@@ -61,10 +91,6 @@ namespace GenMailServer
             {
                 Console.WriteLine("Error:Config File Lost!");
             }
-            intSilentTime = EmailRete;
-            intSecondShow = intMainRate;
-            t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
-            tClock = new Timer(TimerClockShow, null, 0, 1000);
             Console.ReadLine();
         }
         private static void TransToLocal(DataTable dt)
@@ -101,7 +127,7 @@ namespace GenMailServer
                 if (!boolClockShow)
                 {
                     Console.WriteLine("");
-                    Console.Write("Now is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
+                    Console.Write("\rNow is :" + DateTime.Now.ToString() + " ...");
                     boolClockShow = true;
                 }
                 else
@@ -125,7 +151,7 @@ namespace GenMailServer
             Console.WriteLine("");
             Console.WriteLine("Running Main Method...");
 
-            boolClockShow = false;
+            //boolClockShow = false;
             boolProcess = true;
             bool boolstatus = false;
             emailHelper.emailHelper eh = new emailHelper.emailHelper();
