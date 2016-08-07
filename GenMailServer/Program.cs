@@ -232,7 +232,7 @@ namespace GenMailServer
             }
             else
             {
-                ConsoleHelper.ConsoleHelper.wl("Error:" + "Some Boolean Values is False!",ConsoleColor.Red,ConsoleColor.Black);
+                ConsoleHelper.ConsoleHelper.wl("Error:" + "Local DB or Remote DB can not be connected!",ConsoleColor.Red,ConsoleColor.Black);
             }
             boolProcess = false;
             ConsoleHelper.ConsoleHelper.wl("End Running...");
