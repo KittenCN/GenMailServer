@@ -28,40 +28,39 @@ namespace GenMailServer
         public static int intEmailTestFlag = 0;
         public static string strEmailTestAddress = "owdely@163.com";
         public static Boolean boolSilentTimeShow = false;
-        public static int intSilentTime = 10;
+        public static int intSilentTime = 10;        
         static void Main(string[] args)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WindowWidth = 120;
             Console.WindowHeight = 33;
-            Console.WriteLine("Welcome to GMS-General Mail Server");
-            Console.BackgroundColor = ConsoleColor.Blue;            
+            Console.Title = "GMS-General Mail Server";
+            ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Mail Server");         
             Console.WriteLine("");
             for(int i=0;i<10;i++)
             {
                 if(i%2==0)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("\rDO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!");
+                {                   
+                    ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!",ConsoleColor.Red, ConsoleColor.Cyan);
                     Thread.Sleep(500);
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
-                    Console.Write("\rDO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!");
+                    ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!",ConsoleColor.DarkRed, ConsoleColor.Cyan);
                     Thread.Sleep(500);
                 }
             }
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.Write("\rDO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!");
+            ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!", ConsoleColor.Red, ConsoleColor.Cyan);
+            ConsoleHelper.ConsoleHelper.wl("");
+            ConsoleHelper.ConsoleHelper.wl("");
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("");
+            Console.ForegroundColor = ConsoleColor.Green;
             if (File.Exists(strLocalAdd))
             {
                 try
                 {
-                    Console.WriteLine("Reading Config File ...");
+                    ConsoleHelper.ConsoleHelper.wl("Reading Config File ...");
                     XmlDocument xmlCon = new XmlDocument();
                     xmlCon.Load(strLocalAdd);
                     XmlNode xnCon = xmlCon.SelectSingleNode("Config");
@@ -74,22 +73,22 @@ namespace GenMailServer
                     intEmailTestFlag = int.Parse(xnCon.SelectSingleNode("EmailTestFlag").InnerText);
                     intMainRate=int.Parse(xnCon.SelectSingleNode("MainRate").InnerText);
                     strEmailTestAddress = xnCon.SelectSingleNode("EmailTestAddress").InnerText;
-                    Console.WriteLine("Reading Config File Successfully...");
+                    ConsoleHelper.ConsoleHelper.wl("Reading Config File Successfully...");
 
                     intSilentTime = EmailRete;
                     intSecondShow = intMainRate;
-                    Console.WriteLine("Begin Timer Methods...");
+                    ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
                     t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
                     tClock = new Timer(TimerClockShow, null, 0, 1000);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error:" + ex.ToString());
+                    ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                 }
             }
             else
             {
-                Console.WriteLine("Error:Config File Lost!");
+                ConsoleHelper.ConsoleHelper.wl("Error:Config File Lost!", ConsoleColor.Red, ConsoleColor.Black);
             }
             Console.ReadLine();
         }
@@ -126,13 +125,13 @@ namespace GenMailServer
             {
                 if (!boolClockShow)
                 {
-                    Console.WriteLine("");
-                    Console.Write("\rNow is :" + DateTime.Now.ToString() + " ...");
+                    ConsoleHelper.ConsoleHelper.wl("");
+                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " ...");
                     boolClockShow = true;
                 }
                 else
                 {
-                    Console.Write("\rNow is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
+                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
                 }
             }
             //else if(boolProcess && boolSilentTimeShow)
@@ -148,8 +147,9 @@ namespace GenMailServer
             // Display the date/time when this method got called.
             //Console.WriteLine("In TimerCallback: " + DateTime.Now);
             // Force a garbage collection to occur for this demo.
-            Console.WriteLine("");
-            Console.WriteLine("Running Main Method...");
+            ConsoleHelper.ConsoleHelper.wl("");
+            ConsoleHelper.ConsoleHelper.wl("");
+            ConsoleHelper.ConsoleHelper.wl("Running Main Method...");
 
             //boolClockShow = false;
             boolProcess = true;
@@ -159,18 +159,18 @@ namespace GenMailServer
             {
                 if (intEmailTestFlag == 1)
                 {
-                    Console.WriteLine("Debug Mode Open...");
+                    ConsoleHelper.ConsoleHelper.wl("Debug Mode Open...");
                     for(int i=1; i<=2; i++)
                     {
                         string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", strEmailTestAddress, i);
                         if (strDebugResult == "Success!")
                         {
-                            Console.WriteLine("The Debug Mail With LinkString[" + i + "] has been sent successfully!");
+                            ConsoleHelper.ConsoleHelper.wl("The Debug Mail With LinkString[" + i + "] has been sent successfully!");
                             Thread.Sleep(EmailRete * 1000);
                         }
                         else
                         {
-                            Console.WriteLine("LinkString[" + i + "] had Error:" + strDebugResult);
+                            ConsoleHelper.ConsoleHelper.wl("LinkString[" + i + "] had Error:" + strDebugResult, ConsoleColor.Red, ConsoleColor.Black);
                         }
                     }
                 }
@@ -187,13 +187,13 @@ namespace GenMailServer
             catch (Exception ex)
             {
                 boolstatus = false;
-                Console.WriteLine("Error:" + ex.ToString());
+                ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
             }
             if (boolstatus)
             {
                 try
                 {
-                    Console.WriteLine("Trans Data to Local DB from LinkString1...");
+                    ConsoleHelper.ConsoleHelper.wl("Trans Data to Local DB from LinkString1...");
                     AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString1);
                     string strSQL = "select * from " + LinkCheckStr;
                     DataTable dtSQL = ah.ReturnDataTable(strSQL);
@@ -201,7 +201,7 @@ namespace GenMailServer
                     strSQL = "delete from " + LinkCheckStr;
                     ah.ExecuteNonQuery(strSQL);
 
-                    Console.WriteLine("Trans Data to Local DB from LinkString2...");
+                    ConsoleHelper.ConsoleHelper.wl("Trans Data to Local DB from LinkString2...");
                     ah = new AccessHelper.AccessHelper(LinkString2);
                     strSQL = "select * from " + LinkCheckStr;
                     dtSQL = ah.ReturnDataTable(strSQL);
@@ -209,7 +209,7 @@ namespace GenMailServer
                     strSQL = "delete from " + LinkCheckStr;
                     ah.ExecuteNonQuery(strSQL);
 
-                    Console.WriteLine("Processing the Local Mail Queues...");
+                    ConsoleHelper.ConsoleHelper.wl("Processing the Local Mail Queues...");
                     ah = new AccessHelper.AccessHelper(GenLinkString);
                     strSQL = "select * from " + GenCheckStr;
                     dtSQL = ah.ReturnDataTable(strSQL);
@@ -220,33 +220,33 @@ namespace GenMailServer
                         string strMailResult = emailHelper.emailHelper.SendEmail(row["MailSubject"].ToString(), row["MailBody"].ToString(), row["MailTargetAddress"].ToString(),int.Parse(row["Flag"].ToString()));
                         if (strMailResult == "Success!")
                         {
-                            Console.WriteLine("The " + i + " Mail has been sent successfully!");
+                            ConsoleHelper.ConsoleHelper.wl("The " + i + " Mail has been sent successfully!");
                             string strInSQL = "insert into MailHistory(MailSubject,MailBody,MailTargetAddress,MailDateTime,SendDateTime,Flag) ";
                             strInSQL = strInSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + row["MailDateTime"].ToString() + "#,#" + DateTime.Now.ToString() + "#," + int.Parse(row["Flag"].ToString()) + ") ";
                             ah.ExecuteNonQuery(strInSQL);
                             strInSQL = "delete from " + GenCheckStr + " where id=" + row["ID"].ToString() + " ";
                             ah.ExecuteNonQuery(strInSQL);
-                            Console.WriteLine("The " + i + " Mail has been processed successfully!");
+                            ConsoleHelper.ConsoleHelper.wl("The " + i + " Mail has been processed successfully!");
                             Thread.Sleep(EmailRete * 1000);
                         }
                         else
                         {
-                            Console.WriteLine("Error:" + strMailResult);
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + strMailResult, ConsoleColor.Red, ConsoleColor.Black);
                         }
                     }
-
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error:" + ex.ToString());
+                    ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                 }
             }
             else
             {
-                Console.WriteLine("Error:" + "Some Boolean Values is False!");
+                ConsoleHelper.ConsoleHelper.wl("Error:" + "Some Boolean Values is False!",ConsoleColor.Red,ConsoleColor.Black);
             }
             boolProcess = false;
-            Console.WriteLine("End Running...");
+            ConsoleHelper.ConsoleHelper.wl("End Running...");
+            ConsoleHelper.ConsoleHelper.wl("");
             GC.Collect();
         }
     }

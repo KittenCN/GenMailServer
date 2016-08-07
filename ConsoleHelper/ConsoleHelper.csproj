@@ -4,18 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{00825AFC-A3BE-4BFC-B427-7266E04F8AD6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{7D981DBC-14C5-4265-8896-4C8DC15A5156}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GenMailServer</RootNamespace>
-    <AssemblyName>GenMailServer</AssemblyName>
+    <RootNamespace>ConsoleHelper</RootNamespace>
+    <AssemblyName>ConsoleHelper</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -44,36 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="ConsoleHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Config.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="DB\GenMailServer.accdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AccessHelper\AccessHelper.csproj">
-      <Project>{55b3e2c2-d8ce-4a7a-a0d9-454b1d974a0e}</Project>
-      <Name>AccessHelper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ConsoleHelper\ConsoleHelper.csproj">
-      <Project>{7d981dbc-14c5-4265-8896-4c8dc15a5156}</Project>
-      <Name>ConsoleHelper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\emailHelper\emailHelper.csproj">
-      <Project>{d568a5cc-8f0d-4621-af55-49f01620a45a}</Project>
-      <Name>emailHelper</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

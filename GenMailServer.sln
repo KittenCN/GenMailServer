@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessHelper", "AccessHelpe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "emailHelper", "emailHelper\emailHelper.csproj", "{D568A5CC-8F0D-4621-AF55-49F01620A45A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleHelper", "ConsoleHelper\ConsoleHelper.csproj", "{7D981DBC-14C5-4265-8896-4C8DC15A5156}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D568A5CC-8F0D-4621-AF55-49F01620A45A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D568A5CC-8F0D-4621-AF55-49F01620A45A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D568A5CC-8F0D-4621-AF55-49F01620A45A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D981DBC-14C5-4265-8896-4C8DC15A5156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D981DBC-14C5-4265-8896-4C8DC15A5156}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D981DBC-14C5-4265-8896-4C8DC15A5156}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D981DBC-14C5-4265-8896-4C8DC15A5156}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -429,25 +429,25 @@ namespace AccessHelper
                 }
                 catch(Exception ex1)
                 {
-                    if(ex1.HResult.ToString()== "-2147217865")
+                    if(ex1.HResult.ToString()== "-2147217865" && strTableName== "MailTrans")
                     {
                         try
                         {
-                            Console.WriteLine("Can not found MailTrans table , system will try to create it...");
+                            ConsoleHelper.ConsoleHelper.wl("Can not found MailTrans table , system will try to create it...");
                             string strInSQL = "create table MailTrans(id autoincrement,MailSubject longtext,MailBody longtext,MailTargetAddress longtext,Flag int)";
-                            Console.WriteLine("Create the MailTrans table successfully.");
+                            ConsoleHelper.ConsoleHelper.wl("Create the MailTrans table successfully.");
                             ah.ExecuteNonQuery(strInSQL);
                             boolResult = true;
                         }
                         catch (Exception ex2)
                         {
-                            Console.WriteLine("Error:" + ex2.ToString());
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + ex2.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                             boolResult = false;
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Error:" + ex1.ToString());
+                        ConsoleHelper.ConsoleHelper.wl("Error:" + ex1.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                         boolResult = false;
                     }
                 }
