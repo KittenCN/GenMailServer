@@ -99,7 +99,7 @@ namespace GenMailServer
             foreach (DataRow row in dt.Rows)
             {
                 string strSQL = "insert into MailQueues(MailSubject,MailBody,MailTargetAddress,MailDateTime,Flag) ";
-                strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#)," + intFlag;
+                strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#," + intFlag + ") ";
                 ah.ExecuteNonQuery(strSQL);
             }
         }

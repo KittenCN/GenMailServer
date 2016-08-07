@@ -2,16 +2,16 @@
 <Config>
   <LinkString1>E:\workstation\项目\用蝶项目\Tiffany\转货管理系统\BHair\bin\Debug\转货数据库.accdb</LinkString1>
   <LinkString2>E:\workstation\项目\用蝶项目\Tiffany\员工内购\BHair\bin\Debug\员工内购数据库.accdb</LinkString2>
-  <EmailID1>owdely@vip.163.com</EmailID1>
-  <EmailPWD1>hcetenosupo28</EmailPWD1>
-  <EmailAddress1>owdely@vip.163.com</EmailAddress1>
-  <EmailSMTP1>smtp.vip.163.com</EmailSMTP1>
-  <EmailID2>owdely@vip.163.com</EmailID2>
-  <EmailPWD2>hcetenosupo28</EmailPWD2>
-  <EmailAddress2>owdely@vip.163.com</EmailAddress2>
-  <EmailSMTP2>smtp.vip.163.com</EmailSMTP2>
-  <EmailRate>10</EmailRate>       <!--邮件发送间隔,按邮件服务器相关配置设置,默认10秒-->
+  <EmailID1></EmailID1>
+  <EmailPWD1></EmailPWD1>
+  <EmailAddress1></EmailAddress1>
+  <EmailSMTP1></EmailSMTP1>
+  <EmailID2></EmailID2>
+  <EmailPWD2></EmailPWD2>
+  <EmailAddress2></EmailAddress2>
+  <EmailSMTP2></EmailSMTP2>
+  <EmailRate>3</EmailRate>       <!--邮件发送间隔,按邮件服务器相关配置设置,默认3秒-->
   <MainRate>1800</MainRate>         <!--主事件轮询间隔,默认1800秒-->
-  <EmailTestFlag>1</EmailTestFlag>        <!--Debug模式开关-->
+  <EmailTestFlag>0</EmailTestFlag>        <!--Debug模式开关-->
   <EmailTestAddress>owdely@163.com</EmailTestAddress>       <!--Debug邮件接收地址-->
 </Config>
