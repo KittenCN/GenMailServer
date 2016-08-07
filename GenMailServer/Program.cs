@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
 using System.Data;
@@ -31,12 +27,9 @@ namespace GenMailServer
         public static int intSilentTime = 10;        
         static void Main(string[] args)
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WindowWidth = 120;
-            Console.WindowHeight = 33;
-            Console.Title = "GMS-General Mail Server";
-            ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Mail Server");         
-            Console.WriteLine("");
+            ConsoleHelper.ConsoleHelper.cInitiaze();
+            ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Mail Server");
+            ConsoleHelper.ConsoleHelper.wl("");
             for(int i=0;i<10;i++)
             {
                 if(i%2==0)
@@ -50,12 +43,10 @@ namespace GenMailServer
                     Thread.Sleep(500);
                 }
             }
-            Console.ForegroundColor = ConsoleColor.Red;
             ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!", ConsoleColor.Red, ConsoleColor.Cyan);
             ConsoleHelper.ConsoleHelper.wl("");
             ConsoleHelper.ConsoleHelper.wl("");
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.ForegroundColor = ConsoleColor.Green;
+            ConsoleHelper.ConsoleHelper.cInitiaze();
             if (File.Exists(strLocalAdd))
             {
                 try
@@ -174,7 +165,6 @@ namespace GenMailServer
                         }
                     }
                 }
-
                 if (AccessHelper.AccessHelper.CheckDB(GenLinkString, GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1, LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
                 {
                     boolstatus = true;

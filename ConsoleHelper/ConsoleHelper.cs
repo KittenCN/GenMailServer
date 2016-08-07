@@ -40,5 +40,14 @@ namespace ConsoleHelper
             Console.ForegroundColor = ccDefColor;
             Console.BackgroundColor = ccDefBackColer;
         }
+
+        public static void cInitiaze()
+        {
+            Console.ForegroundColor = ccDefColor;
+            Console.BackgroundColor = ccDefBackColer;
+            Console.WindowWidth = 120;
+            Console.WindowHeight = 33;
+            Console.Title = "GMS-General Mail Server";
+        }
     }
 }
