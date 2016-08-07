@@ -93,13 +93,13 @@ namespace GenMailServer
             }
             Console.ReadLine();
         }
-        private static void TransToLocal(DataTable dt)
+        private static void TransToLocal(DataTable dt,int intFlag)
         {
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
             foreach (DataRow row in dt.Rows)
             {
-                string strSQL = "insert into MailQueues(MailSubject,MailBody,MailTargetAddress,MailDateTime) ";
-                strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#) ";
+                string strSQL = "insert into MailQueues(MailSubject,MailBody,MailTargetAddress,MailDateTime,Flag) ";
+                strSQL = strSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + DateTime.Now.ToString() + "#)," + intFlag;
                 ah.ExecuteNonQuery(strSQL);
             }
         }
@@ -160,15 +160,18 @@ namespace GenMailServer
                 if (intEmailTestFlag == 1)
                 {
                     Console.WriteLine("Debug Mode Open...");
-                    string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", strEmailTestAddress);
-                    if (strDebugResult == "Success!")
+                    for(int i=1; i<=2; i++)
                     {
-                        Console.WriteLine("The Debug Mail has been sent successfully!");
-                        Thread.Sleep(EmailRete * 1000);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error:" + strDebugResult);
+                        string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", strEmailTestAddress, i);
+                        if (strDebugResult == "Success!")
+                        {
+                            Console.WriteLine("The Debug Mail With LinkString[" + i + "] has been sent successfully!");
+                            Thread.Sleep(EmailRete * 1000);
+                        }
+                        else
+                        {
+                            Console.WriteLine("LinkString[" + i + "] had Error:" + strDebugResult);
+                        }
                     }
                 }
 
@@ -194,7 +197,7 @@ namespace GenMailServer
                     AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString1);
                     string strSQL = "select * from " + LinkCheckStr;
                     DataTable dtSQL = ah.ReturnDataTable(strSQL);
-                    TransToLocal(dtSQL);
+                    TransToLocal(dtSQL,1);
                     strSQL = "delete from " + LinkCheckStr;
                     ah.ExecuteNonQuery(strSQL);
 
@@ -202,7 +205,7 @@ namespace GenMailServer
                     ah = new AccessHelper.AccessHelper(LinkString2);
                     strSQL = "select * from " + LinkCheckStr;
                     dtSQL = ah.ReturnDataTable(strSQL);
-                    TransToLocal(dtSQL);
+                    TransToLocal(dtSQL,2);
                     strSQL = "delete from " + LinkCheckStr;
                     ah.ExecuteNonQuery(strSQL);
 
@@ -214,12 +217,12 @@ namespace GenMailServer
                     foreach (DataRow row in dtSQL.Rows)
                     {
                         i++;
-                        string strMailResult = emailHelper.emailHelper.SendEmail(row["MailSubject"].ToString(), row["MailBody"].ToString(), row["MailTargetAddress"].ToString());
+                        string strMailResult = emailHelper.emailHelper.SendEmail(row["MailSubject"].ToString(), row["MailBody"].ToString(), row["MailTargetAddress"].ToString(),int.Parse(row["Flag"].ToString()));
                         if (strMailResult == "Success!")
                         {
                             Console.WriteLine("The " + i + " Mail has been sent successfully!");
-                            string strInSQL = "insert into MailHistory(MailSubject,MailBody,MailTargetAddress,MailDateTime,SendDateTime) ";
-                            strInSQL = strInSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + row["MailDateTime"].ToString() + "#,#" + DateTime.Now.ToString() + "#) ";
+                            string strInSQL = "insert into MailHistory(MailSubject,MailBody,MailTargetAddress,MailDateTime,SendDateTime,Flag) ";
+                            strInSQL = strInSQL + " values('" + row["MailSubject"].ToString() + "','" + row["MailBody"].ToString() + "','" + row["MailTargetAddress"].ToString() + "',#" + row["MailDateTime"].ToString() + "#,#" + DateTime.Now.ToString() + "#," + int.Parse(row["Flag"].ToString()) + ") ";
                             ah.ExecuteNonQuery(strInSQL);
                             strInSQL = "delete from " + GenCheckStr + " where id=" + row["ID"].ToString() + " ";
                             ah.ExecuteNonQuery(strInSQL);

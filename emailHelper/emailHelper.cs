@@ -43,7 +43,7 @@ namespace emailHelper
         /// <param name="Body">正文</param>
         /// <param name="TargetAddress">目标地址</param>
         /// <returns>发送成功</returns>
-        public static string SendEmail(string Subject, string Body, string TargetAddress)
+        public static string SendEmail(string Subject, string Body, string TargetAddress,int intFlag)
         {
             string strLocalAdd = ".\\Config.xml";
             emailHelper eh = new emailHelper();
@@ -55,11 +55,21 @@ namespace emailHelper
                     xmlCon.Load(strLocalAdd);
                     XmlNode xnCon = xmlCon.SelectSingleNode("Config");
                     //string LinkString1 = xnCon.SelectSingleNode("LinkString1").InnerText;
-                    //string LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;                    
-                    eh.EmailID= xnCon.SelectSingleNode("EmailID").InnerText;
-                    eh.EmailPWD = xnCon.SelectSingleNode("EmailPWD").InnerText;
-                    eh.EmailSMTP = xnCon.SelectSingleNode("EmailSMTP").InnerText;
-                    eh.EmailAddress = xnCon.SelectSingleNode("EmailAddress").InnerText;
+                    //string LinkString2 = xnCon.SelectSingleNode("LinkString2").InnerText;   
+                    if(intFlag==1)
+                    {
+                        eh.EmailID = xnCon.SelectSingleNode("EmailID1").InnerText;
+                        eh.EmailPWD = xnCon.SelectSingleNode("EmailPWD1").InnerText;
+                        eh.EmailSMTP = xnCon.SelectSingleNode("EmailSMTP1").InnerText;
+                        eh.EmailAddress = xnCon.SelectSingleNode("EmailAddress1").InnerText;
+                    }   
+                    else if(intFlag==2)
+                    {
+                        eh.EmailID = xnCon.SelectSingleNode("EmailID2").InnerText;
+                        eh.EmailPWD = xnCon.SelectSingleNode("EmailPWD2").InnerText;
+                        eh.EmailSMTP = xnCon.SelectSingleNode("EmailSMTP2").InnerText;
+                        eh.EmailAddress = xnCon.SelectSingleNode("EmailAddress2").InnerText;
+                    }                                
                 }
                 catch(Exception ex)
                 {
