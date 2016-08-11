@@ -34,16 +34,16 @@ namespace GenMailServer
             {
                 if(i%2==0)
                 {                   
-                    ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!",ConsoleColor.Red, ConsoleColor.Cyan);
+                    ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!",ConsoleColor.Red, ConsoleColor.Cyan,false);
                     Thread.Sleep(500);
                 }
                 else
                 {
-                    ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!",ConsoleColor.DarkRed, ConsoleColor.Cyan);
+                    ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!",ConsoleColor.DarkRed, ConsoleColor.Cyan,false);
                     Thread.Sleep(500);
                 }
             }
-            ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!", ConsoleColor.Red, ConsoleColor.Cyan);
+            ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!", ConsoleColor.Red, ConsoleColor.Cyan,true);
             ConsoleHelper.ConsoleHelper.wl("");
             ConsoleHelper.ConsoleHelper.wl("");
             ConsoleHelper.ConsoleHelper.cInitiaze();
@@ -82,6 +82,7 @@ namespace GenMailServer
                 ConsoleHelper.ConsoleHelper.wl("Error:Config File Lost!", ConsoleColor.Red, ConsoleColor.Black);
             }
             Console.ReadLine();
+            ConsoleHelper.ConsoleHelper.wl("Exit!");
         }
         private static void TransToLocal(DataTable dt,int intFlag)
         {
@@ -117,12 +118,12 @@ namespace GenMailServer
                 if (!boolClockShow)
                 {
                     ConsoleHelper.ConsoleHelper.wl("");
-                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " ...");
+                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " ...",true);
                     boolClockShow = true;
                 }
                 else
                 {
-                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.");
+                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.",false);
                 }
             }
             //else if(boolProcess && boolSilentTimeShow)
@@ -165,7 +166,7 @@ namespace GenMailServer
                         }
                     }
                 }
-                if (AccessHelper.AccessHelper.CheckDB(GenLinkString, GenCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString1, LinkCheckStr) && AccessHelper.AccessHelper.CheckDB(LinkString2, LinkCheckStr))
+                if (CheckDB(GenLinkString, GenCheckStr) && CheckDB(LinkString1, LinkCheckStr) && CheckDB(LinkString2, LinkCheckStr))
                 {
                     boolstatus = true;
                 }
@@ -239,5 +240,98 @@ namespace GenMailServer
             ConsoleHelper.ConsoleHelper.wl("");
             GC.Collect();
         }
+
+        #region[数据库及数据表测试]
+        public static Boolean CheckDB(string strDBAddress, string strTableName)
+        {
+            Boolean boolResult = false;
+            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(strDBAddress);
+            if (ah.ConnectTest())
+            {
+                try
+                {
+                    string strSQL = "select * from " + strTableName;
+                    DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                    if (dtSQL.Rows.Count >= 0)
+                    {
+                        boolResult = true;
+                    }
+                    else
+                    {
+                        boolResult = false;
+                    }
+                }
+                catch (Exception ex1)
+                {
+                    if (ex1.HResult.ToString() == "-2147217865" && strTableName == "MailTrans")
+                    {
+                        try
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("Can not found MailTrans table , system will try to create it...");
+                            string strInSQL = "create table MailTrans(id autoincrement,MailSubject longtext,MailBody longtext,MailTargetAddress longtext,Flag int)";
+                            ConsoleHelper.ConsoleHelper.wl("Create the MailTrans table successfully.");
+                            ah.ExecuteNonQuery(strInSQL);
+                            boolResult = true;
+                        }
+                        catch (Exception ex2)
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + ex2.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                            boolResult = false;
+                        }
+                    }
+                    else
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("Error:" + ex1.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                        boolResult = false;
+                    }
+                }
+                if (strTableName == "MailQueues")
+                {
+                    try
+                    {
+                        string strSQL = "select * from Log";
+                        DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                        if (dtSQL.Rows.Count >= 0)
+                        {
+                            boolResult = true;
+                        }
+                        else
+                        {
+                            boolResult = false;
+                        }
+                    }
+                    catch (Exception ex1)
+                    {
+                        if (ex1.HResult.ToString() == "-2147217865")
+                        {
+                            try
+                            {
+                                ConsoleHelper.ConsoleHelper.wl("Can not found Log table , system will try to create it...");
+                                string strInSQL = "create table Log(id autoincrement,Log longtext,LogDateTime datetime)";
+                                ConsoleHelper.ConsoleHelper.wl("Create the Log table successfully.");
+                                ah.ExecuteNonQuery(strInSQL);
+                                boolResult = true;
+                            }
+                            catch (Exception ex2)
+                            {
+                                ConsoleHelper.ConsoleHelper.wl("Error:" + ex2.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                                boolResult = false;
+                            }
+                        }
+                        else
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + ex1.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                            boolResult = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                boolResult = false;
+            }
+            return boolResult;
+        }
+        #endregion
     }
 }
