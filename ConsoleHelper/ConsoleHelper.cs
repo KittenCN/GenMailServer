@@ -17,6 +17,14 @@ namespace ConsoleHelper
             Console.WriteLine(strValues);
             Log(strValues);
         }
+        public static void wl(string strValues,Boolean boolLogFlag)
+        {
+            Console.WriteLine(strValues);
+            if(boolLogFlag==true)
+            {
+                Log(strValues);
+            }
+        }
         public static void wl(string strValues,ConsoleColor cc)
         {
             Console.ForegroundColor = cc;

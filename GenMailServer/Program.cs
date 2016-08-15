@@ -27,6 +27,10 @@ namespace GenMailServer
         public static int intSilentTime = 10;        
         static void Main(string[] args)
         {
+            CheckDB(GenLinkString, GenCheckStr);
+            CheckDB(LinkString1, LinkCheckStr);
+            CheckDB(LinkString2, LinkCheckStr);
+
             ConsoleHelper.ConsoleHelper.cInitiaze();
             ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Mail Server");
             ConsoleHelper.ConsoleHelper.wl("");
@@ -285,7 +289,7 @@ namespace GenMailServer
                         boolResult = false;
                     }
                 }
-                if (strTableName == "MailQueues")
+                if (strTableName == GenCheckStr)
                 {
                     try
                     {
@@ -306,11 +310,51 @@ namespace GenMailServer
                         {
                             try
                             {
-                                ConsoleHelper.ConsoleHelper.wl("Can not found Log table , system will try to create it...");
-                                string strInSQL = "create table Log(id autoincrement,Log longtext,LogDateTime datetime)";
-                                ConsoleHelper.ConsoleHelper.wl("Create the Log table successfully.");
+                                ConsoleHelper.ConsoleHelper.wl("Can not found Log table , system will try to create it...",false);
+                                string strInSQL = "create table Log(id autoincrement,Log longtext,LogDateTime datetime)";                              
                                 ah.ExecuteNonQuery(strInSQL);
                                 boolResult = true;
+                                ConsoleHelper.ConsoleHelper.wl("Create the Log table successfully.");
+                            }
+                            catch (Exception ex2)
+                            {
+                                ConsoleHelper.ConsoleHelper.wl("Error:" + ex2.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                                boolResult = false;
+                            }
+                        }
+                        else
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + ex1.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                            boolResult = false;
+                        }
+                    }
+                }
+                else if(strTableName== LinkCheckStr)
+                {
+                    try
+                    {
+                        string strSQL = "select PhoneNUM from ApplicationDetail";
+                        DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                        if (dtSQL.Rows.Count >= 0)
+                        {
+                            boolResult = true;
+                        }
+                        else
+                        {
+                            boolResult = false;
+                        }
+                    }
+                    catch (Exception ex1)
+                    {
+                        if (ex1.HResult.ToString() == "-2147217904")
+                        {
+                            try
+                            {
+                                ConsoleHelper.ConsoleHelper.wl("Can not found PhonNUM String , system will try to create it...");
+                                string strInSQL = "alter table ApplicationDetail add COLUMN PhoneNUM text";
+                                ah.ExecuteNonQuery(strInSQL);
+                                boolResult = true;
+                                ConsoleHelper.ConsoleHelper.wl("Create the PhonNUM String successfully.");
                             }
                             catch (Exception ex2)
                             {
