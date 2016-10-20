@@ -7,7 +7,7 @@
   <EmailAddress1></EmailAddress1>
   <EmailSMTP1></EmailSMTP1>
   <!--第二组远程数据库地址及邮件服务器配置-->
-  <LinkString2>E:\workstation\项目\用蝶项目\Tiffany\员工内购\BHair\bin\Debug\员工内购数据库.accdb</LinkString2>
+  <LinkString2>E:\workstation\项目\用蝶项目\Tiffany\员工内购\TiffanyPurchase\BHair\bin\Debug\员工内购数据库.accdb</LinkString2>
   <EmailID2></EmailID2>
   <EmailPWD2></EmailPWD2>
   <EmailAddress2></EmailAddress2>
@@ -15,6 +15,7 @@
   <!--系统相关设置-->
   <EmailRate>3</EmailRate>       <!--邮件发送间隔,按邮件服务器相关配置设置,默认3秒-->
   <MainRate>600</MainRate>         <!--主事件轮询间隔,默认1800秒-->
+  <DBCacheRate>5</DBCacheRate>
   <EmailTestFlag>0</EmailTestFlag>        <!--Debug模式开关-->
   <EmailTestAddress>owdely@163.com</EmailTestAddress>       <!--Debug邮件接收地址-->
 </Config>
