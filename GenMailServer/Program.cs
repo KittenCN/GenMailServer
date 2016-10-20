@@ -451,13 +451,10 @@ namespace GenMailServer
                                             if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
                                             {
                                                 ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                //string strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
-                                                //ahLink2.ExecuteNonQuery(strSQLin);
                                                 string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
                                                 ah.ExecuteNonQuery(strSQLin);
                                                 intSuccess++;
                                             }
-
                                         }
                                         else
                                         {
