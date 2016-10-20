@@ -118,7 +118,7 @@ namespace GenMailServer
             {
                 intSecondShow = intMainRate;
             }
-            if(int3rdShow>0)
+            if (int3rdShow > 0)
             {
                 int3rdShow--;
             }
@@ -145,7 +145,7 @@ namespace GenMailServer
                 else
                 {
                     int intShow = 999;
-                    if(intSecondShow>int3rdShow)
+                    if (intSecondShow > int3rdShow)
                     {
                         intShow = int3rdShow;
                     }
@@ -445,7 +445,7 @@ namespace GenMailServer
                                     else
                                     {
                                         strLastCtrlID = dr["TransNo"].ToString();
-                                        if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0)
+                                        if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0)
                                         {
                                             AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
                                             if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
