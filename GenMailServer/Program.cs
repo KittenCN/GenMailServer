@@ -28,6 +28,7 @@ namespace GenMailServer
         public static int intSilentTime = 10;
         public static Boolean boolDBCache = false;
         public static int intDBCacheRate = 3600;
+        public static int int3rdShow = 60;
         static void Main(string[] args)
         {
             CheckDB(GenLinkString, GenCheckStr);
@@ -76,6 +77,9 @@ namespace GenMailServer
 
                     intSilentTime = EmailRete;
                     intSecondShow = intMainRate;
+                    int3rdShow = intDBCacheRate;
+                    TimerCallback(null);
+                    TimerDBCacheProcess(null);
                     ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
                     t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
                     tClock = new Timer(TimerClockShow, null, 0, 1000);
@@ -114,6 +118,14 @@ namespace GenMailServer
             {
                 intSecondShow = intMainRate;
             }
+            if(int3rdShow>0)
+            {
+                int3rdShow--;
+            }
+            else
+            {
+                int3rdShow = intDBCacheRate;
+            }
             //if (intSilentTime > 0)
             //{
             //    intSilentTime--;
@@ -132,7 +144,16 @@ namespace GenMailServer
                 }
                 else
                 {
-                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " , and " + intSecondShow + " seconds to the next execution.", false);
+                    int intShow = 999;
+                    if(intSecondShow>int3rdShow)
+                    {
+                        intShow = int3rdShow;
+                    }
+                    else
+                    {
+                        intShow = intSecondShow;
+                    }
+                    ConsoleHelper.ConsoleHelper.wrr("Now is :" + DateTime.Now.ToString() + " , and " + intShow + " seconds to the next execution.", false);
                 }
             }
             //else if(boolProcess && boolSilentTimeShow)
@@ -393,32 +414,38 @@ namespace GenMailServer
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("Running DB Cache Method...");
-
+                ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Directory...");
+                int intSuccess = 0;
+                int intError = 0;
                 string url = LinkString2.Substring(0, LinkString2.LastIndexOf("\\") + 1) + "DBCache\\";
                 if (Directory.Exists(url))
                 {
                     DirectoryInfo di = new DirectoryInfo(url);
+                    ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files...");
                     foreach (FileInfo fi in di.GetFiles("*.accdb"))
                     {
                         AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(fi.FullName);
                         if (ah.ConnectTest())
                         {
+                            ConsoleHelper.ConsoleHelper.wl("DB Cache Main Method...");
                             string strSQL = "select * from AccessQueue";
                             DataTable dtSQL = ah.ReturnDataTable(strSQL);
                             string strLastCtrlID = "";
                             Boolean boolLastCtrlID = true; ;
                             foreach (DataRow dr in dtSQL.Rows)
                             {
-                                if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString() == "Cache")
+                                if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
                                 {
+                                    string strUID = dr["operation"].ToString().Substring(5);
                                     if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
                                     {
+                                        intError++;
                                         break;
                                     }
                                     else
                                     {
                                         strLastCtrlID = dr["TransNo"].ToString();
-                                        if (GetTotalPricefromUID(GetUIDfromTransNum(dr["TransNo"].ToString())) - double.Parse(dr["Buy"].ToString()) >= 0)
+                                        if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0)
                                         {
                                             AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
                                             if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
@@ -428,31 +455,56 @@ namespace GenMailServer
                                                 //ahLink2.ExecuteNonQuery(strSQLin);
                                                 string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
                                                 ah.ExecuteNonQuery(strSQLin);
+                                                intSuccess++;
                                             }
+
                                         }
                                         else
                                         {
+                                            string strSQLin = "";
                                             AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                                            if (dr["SqlStr"]!=null && dr["SqlStr"].ToString()!="")
+                                            if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
                                             {
                                                 ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                string strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
+                                                strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
                                                 ahLink2.ExecuteNonQuery(strSQLin);
-                                                strSQLin= "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                                ah.ExecuteNonQuery(strSQLin);
                                             }
+                                            strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                            ah.ExecuteNonQuery(strSQLin);
+                                            intError++;
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    intError++;
                                 }
                             }
                         }
                     }
+                    if (intSuccess > 0 || intError > 0)
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("");
+                        ConsoleHelper.ConsoleHelper.wl("Result:");
+                        ConsoleHelper.ConsoleHelper.wl("Success:" + intSuccess);
+                        ConsoleHelper.ConsoleHelper.wl("Error:" + intError);
+                        ConsoleHelper.ConsoleHelper.wl("");
+                    }
+                    else
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("");
+                        ConsoleHelper.ConsoleHelper.wl("No Orders!");
+                        ConsoleHelper.ConsoleHelper.wl("");
+                    }
                 }
                 else
                 {
+                    ConsoleHelper.ConsoleHelper.wl("Error:DB Cache Directory is NULL! System will be try to create it.", ConsoleColor.Red, ConsoleColor.Black);
                     Directory.CreateDirectory(url);
                 }
             }
+            ConsoleHelper.ConsoleHelper.wl("End Running...");
+            boolDBCache = false;
             GC.Collect();
         }
         private static string GetUIDfromTransNum(string TransNum)
