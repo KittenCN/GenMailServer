@@ -107,7 +107,6 @@ namespace AccessHelper
             }
         }
         #endregion
-
         #region[数据库简单操作]
         /// <summary>
         /// 测试是否能够连通
@@ -278,7 +277,6 @@ namespace AccessHelper
 
         }
         #endregion
-
         #region[数据库整体操作]
         /// <summary>
         /// 创建Access2003版本的数据库，可设密码

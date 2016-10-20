@@ -8,6 +8,7 @@ namespace GenMailServer
 {
     class Program
     {
+        #region 全局变量
         public static string GenLinkString = "./DB/GenMailServer.accdb";
         public static string GenCheckStr = "MailQueues";
         public static string LinkCheckStr = "MailTrans";
@@ -29,6 +30,8 @@ namespace GenMailServer
         public static Boolean boolDBCache = false;
         public static int intDBCacheRate = 3600;
         public static int int3rdShow = 60;
+        #endregion
+        #region Main Method
         static void Main(string[] args)
         {
             CheckDB(GenLinkString, GenCheckStr);
@@ -97,6 +100,8 @@ namespace GenMailServer
             Console.ReadLine();
             ConsoleHelper.ConsoleHelper.wl("Exit!");
         }
+        #endregion
+        #region 提取远端邮件数据到本地
         private static void TransToLocal(DataTable dt, int intFlag)
         {
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
@@ -107,7 +112,8 @@ namespace GenMailServer
                 ah.ExecuteNonQuery(strSQL);
             }
         }
-
+        #endregion
+        #region 时间显示事件
         private static void TimerClockShow(object o)
         {
             if (intSecondShow > 0)
@@ -163,7 +169,8 @@ namespace GenMailServer
             //}
             GC.Collect();
         }
-
+        #endregion
+        #region 邮件处理事件
         private static void TimerCallback(Object o)
         {
             if (!boolDBCache && !boolProcess)
@@ -273,8 +280,8 @@ namespace GenMailServer
             }
             GC.Collect();
         }
-
-        #region[数据库及数据表测试]
+        #endregion
+        #region 数据库及数据表测试
         public static Boolean CheckDB(string strDBAddress, string strTableName)
         {
             Boolean boolResult = false;
@@ -406,6 +413,7 @@ namespace GenMailServer
             return boolResult;
         }
         #endregion
+        #region 远程数据缓存处理事件
         private static void TimerDBCacheProcess(object o)
         {
             if (!boolDBCache && !boolProcess)
@@ -418,92 +426,101 @@ namespace GenMailServer
                 int intSuccess = 0;
                 int intError = 0;
                 string url = LinkString2.Substring(0, LinkString2.LastIndexOf("\\") + 1) + "DBCache\\";
-                if (Directory.Exists(url))
+                try
                 {
-                    DirectoryInfo di = new DirectoryInfo(url);
-                    ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files...");
-                    foreach (FileInfo fi in di.GetFiles("*.accdb"))
+                    if (Directory.Exists(url))
                     {
-                        AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(fi.FullName);
-                        if (ah.ConnectTest())
+                        DirectoryInfo di = new DirectoryInfo(url);
+                        ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files...");
+                        foreach (FileInfo fi in di.GetFiles("*.accdb"))
                         {
-                            ConsoleHelper.ConsoleHelper.wl("DB Cache Main Method...");
-                            string strSQL = "select * from AccessQueue";
-                            DataTable dtSQL = ah.ReturnDataTable(strSQL);
-                            string strLastCtrlID = "";
-                            Boolean boolLastCtrlID = true; ;
-                            foreach (DataRow dr in dtSQL.Rows)
+                            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(fi.FullName);
+                            if (ah.ConnectTest())
                             {
-                                if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
+                                ConsoleHelper.ConsoleHelper.wl("DB Cache Main Method...");
+                                string strSQL = "select * from AccessQueue";
+                                DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                                string strLastCtrlID = "";
+                                Boolean boolLastCtrlID = true; ;
+                                foreach (DataRow dr in dtSQL.Rows)
                                 {
-                                    string strUID = dr["operation"].ToString().Substring(5);
-                                    if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
+                                    if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
                                     {
-                                        intError++;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        strLastCtrlID = dr["TransNo"].ToString();
-                                        if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0)
+                                        string strUID = dr["operation"].ToString().Substring(5);
+                                        if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
                                         {
-                                            AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                                            if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
-                                            {
-                                                ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                                ah.ExecuteNonQuery(strSQLin);
-                                                intSuccess++;
-                                            }
+                                            intError++;
+                                            break;
                                         }
                                         else
                                         {
-                                            string strSQLin = "";
-                                            AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                                            if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                            strLastCtrlID = dr["TransNo"].ToString();
+                                            if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0)
                                             {
-                                                ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
-                                                ahLink2.ExecuteNonQuery(strSQLin);
+                                                AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                                if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                                {
+                                                    ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
+                                                    string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                                    ah.ExecuteNonQuery(strSQLin);
+                                                    intSuccess++;
+                                                }
                                             }
-                                            strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                            ah.ExecuteNonQuery(strSQLin);
-                                            intError++;
+                                            else
+                                            {
+                                                string strSQLin = "";
+                                                AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                                if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                                {
+                                                    ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
+                                                    strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
+                                                    ahLink2.ExecuteNonQuery(strSQLin);
+                                                }
+                                                strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                                ah.ExecuteNonQuery(strSQLin);
+                                                intError++;
+                                            }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    intError++;
+                                    else
+                                    {
+                                        intError++;
+                                    }
                                 }
                             }
                         }
-                    }
-                    if (intSuccess > 0 || intError > 0)
-                    {
-                        ConsoleHelper.ConsoleHelper.wl("");
-                        ConsoleHelper.ConsoleHelper.wl("Result:");
-                        ConsoleHelper.ConsoleHelper.wl("Success:" + intSuccess);
-                        ConsoleHelper.ConsoleHelper.wl("Error:" + intError);
-                        ConsoleHelper.ConsoleHelper.wl("");
+                        if (intSuccess > 0 || intError > 0)
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("");
+                            ConsoleHelper.ConsoleHelper.wl("Result:");
+                            ConsoleHelper.ConsoleHelper.wl("Success:" + intSuccess);
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + intError);
+                            ConsoleHelper.ConsoleHelper.wl("");
+                        }
+                        else
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("");
+                            ConsoleHelper.ConsoleHelper.wl("No Orders!");
+                            ConsoleHelper.ConsoleHelper.wl("");
+                        }
                     }
                     else
                     {
-                        ConsoleHelper.ConsoleHelper.wl("");
-                        ConsoleHelper.ConsoleHelper.wl("No Orders!");
-                        ConsoleHelper.ConsoleHelper.wl("");
+                        ConsoleHelper.ConsoleHelper.wl("Error:DB Cache Directory is NULL! System will be try to create it.", ConsoleColor.Red, ConsoleColor.Black);
+                        Directory.CreateDirectory(url);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    ConsoleHelper.ConsoleHelper.wl("Error:DB Cache Directory is NULL! System will be try to create it.", ConsoleColor.Red, ConsoleColor.Black);
-                    Directory.CreateDirectory(url);
+                    ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                 }
             }
             ConsoleHelper.ConsoleHelper.wl("End Running...");
             boolDBCache = false;
             GC.Collect();
         }
+        #endregion
+        #region 子过程
         private static string GetUIDfromTransNum(string TransNum)
         {
             string strResult = "";
@@ -551,5 +568,6 @@ namespace GenMailServer
             douResult = douCPrice - douTPrice;
             return douResult;
         }
+        #endregion
     }
 }
