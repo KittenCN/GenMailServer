@@ -56,7 +56,6 @@ namespace GenMailServer
             }
             ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!", ConsoleColor.Red, ConsoleColor.Cyan, true);
             ConsoleHelper.ConsoleHelper.wl("");
-            ConsoleHelper.ConsoleHelper.wl("");
             ConsoleHelper.ConsoleHelper.cInitiaze();
             if (File.Exists(strLocalAdd))
             {
@@ -84,8 +83,8 @@ namespace GenMailServer
                     TimerCallback(null);
                     TimerDBCacheProcess(null);
                     ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
-                    t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
                     tClock = new Timer(TimerClockShow, null, 0, 1000);
+                    t = new Timer(TimerCallback, null, 0, intMainRate * 1000);                    
                     tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);
                 }
                 catch (Exception ex)
@@ -178,7 +177,6 @@ namespace GenMailServer
                 // Display the date/time when this method got called.
                 //Console.WriteLine("In TimerCallback: " + DateTime.Now);
                 // Force a garbage collection to occur for this demo.
-                ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("Running Main Method...");
 
@@ -419,7 +417,6 @@ namespace GenMailServer
             if (!boolDBCache && !boolProcess)
             {
                 boolDBCache = true;
-                ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("Running DB Cache Method...");
                 ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Directory...");
