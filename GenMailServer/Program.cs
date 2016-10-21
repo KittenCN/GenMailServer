@@ -447,12 +447,14 @@ namespace GenMailServer
                                         if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
                                         {
                                             intError++;
+                                            strLastCtrlID = dr["TransNo"].ToString();
+                                            boolLastCtrlID = false;
                                             break;
                                         }
                                         else
                                         {
                                             strLastCtrlID = dr["TransNo"].ToString();
-                                            if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0)
+                                            if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true))
                                             {
                                                 AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
                                                 if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
@@ -460,6 +462,7 @@ namespace GenMailServer
                                                     ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
                                                     string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
                                                     ah.ExecuteNonQuery(strSQLin);
+                                                    boolLastCtrlID = true;
                                                     intSuccess++;
                                                 }
                                             }
@@ -475,6 +478,7 @@ namespace GenMailServer
                                                 }
                                                 strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
                                                 ah.ExecuteNonQuery(strSQLin);
+                                                boolLastCtrlID = false;
                                                 intError++;
                                             }
                                         }
