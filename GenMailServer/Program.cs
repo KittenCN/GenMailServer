@@ -81,10 +81,10 @@ namespace GenMailServer
                     intSecondShow = intMainRate;
                     int3rdShow = intDBCacheRate;
                     TimerCallback(null);
-                    TimerDBCacheProcess(null);
+                    //TimerDBCacheProcess(null);
                     ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
                     tClock = new Timer(TimerClockShow, null, 0, 1000);
-                    t = new Timer(TimerCallback, null, 0, intMainRate * 1000);                    
+                    t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
                     tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);
                 }
                 catch (Exception ex)
@@ -446,15 +446,25 @@ namespace GenMailServer
                                         string strUID = dr["operation"].ToString().Substring(5);
                                         if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
                                         {
-                                            intError++;
+                                            string strSQLin = "";
+                                            AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                            if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                            {
+                                                ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
+                                                strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
+                                                ahLink2.ExecuteNonQuery(strSQLin);
+                                            }
+                                            strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                            ah.ExecuteNonQuery(strSQLin);                                            
                                             strLastCtrlID = dr["TransNo"].ToString();
                                             boolLastCtrlID = false;
-                                            break;
+                                            ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Flag Check Fail.Please Check Last Order.", ConsoleColor.Red, ConsoleColor.Black);
+                                            intError++;
                                         }
                                         else
                                         {
                                             strLastCtrlID = dr["TransNo"].ToString();
-                                            if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true))
+                                            if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
                                             {
                                                 AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
                                                 if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
@@ -463,6 +473,7 @@ namespace GenMailServer
                                                     string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
                                                     ah.ExecuteNonQuery(strSQLin);
                                                     boolLastCtrlID = true;
+                                                    ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Process Success!");
                                                     intSuccess++;
                                                 }
                                             }
@@ -479,12 +490,14 @@ namespace GenMailServer
                                                 strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
                                                 ah.ExecuteNonQuery(strSQLin);
                                                 boolLastCtrlID = false;
+                                                ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Quota Check Fail.Please Check It", ConsoleColor.Red, ConsoleColor.Black);
                                                 intError++;
                                             }
                                         }
                                     }
                                     else
                                     {
+                                        ConsoleHelper.ConsoleHelper.wl("TransNo Or Operation Code Check Fail.Please Check It", ConsoleColor.Red, ConsoleColor.Black);
                                         intError++;
                                     }
                                 }
