@@ -56,7 +56,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="DB\GenMailServer.accdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
