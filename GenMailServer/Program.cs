@@ -40,7 +40,6 @@ namespace GenMailServer
 
             ConsoleHelper.ConsoleHelper.cInitiaze();
             ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Mail Server");
-            ConsoleHelper.ConsoleHelper.wl("");
             for (int i = 0; i < 10; i++)
             {
                 if (i % 2 == 0)
@@ -55,8 +54,8 @@ namespace GenMailServer
                 }
             }
             ConsoleHelper.ConsoleHelper.wrr("DO NOT CLICK THE INTERFACE AND DO NOT PRESS ANYKEY WHEN THE RUNNING CONSOLE IS IN THE FOREGROUND!!", ConsoleColor.Red, ConsoleColor.Cyan, true);
-            ConsoleHelper.ConsoleHelper.wl("");
             ConsoleHelper.ConsoleHelper.cInitiaze();
+            ConsoleHelper.ConsoleHelper.wl("");
             if (File.Exists(strLocalAdd))
             {
                 try
@@ -505,17 +504,13 @@ namespace GenMailServer
                         }
                         if (intSuccess > 0 || intError > 0)
                         {
-                            ConsoleHelper.ConsoleHelper.wl("");
                             ConsoleHelper.ConsoleHelper.wl("Result:");
                             ConsoleHelper.ConsoleHelper.wl("Success:" + intSuccess);
                             ConsoleHelper.ConsoleHelper.wl("Error:" + intError);
-                            ConsoleHelper.ConsoleHelper.wl("");
                         }
                         else
                         {
-                            ConsoleHelper.ConsoleHelper.wl("");
                             ConsoleHelper.ConsoleHelper.wl("No Orders!");
-                            ConsoleHelper.ConsoleHelper.wl("");
                         }
                     }
                     else
