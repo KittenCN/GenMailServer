@@ -72,6 +72,8 @@ namespace ConsoleHelper
         {
             if(boolLog==true && LogBody != null && LogBody != "")
             {
+                LogBody = LogBody.Replace("'", "#");
+                LogBody = LogBody.Replace("\"", "#");
                 AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
                 string sql = "insert into Log(Log,LogDateTime) ";
                 sql = sql + " values('" + LogBody + "',#" + DateTime.Now.ToString() + "#) ";

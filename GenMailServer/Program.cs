@@ -17,7 +17,7 @@ namespace GenMailServer
         public static int EmailRete = 10;
         public static string strLocalAdd = ".\\Config.xml";
         public static Boolean boolClockShow = false;
-        public static Timer t;
+        public static Timer tMailMethod;
         public static Timer tClock;
         public static Timer tDBCache;
         public static Boolean boolProcess = false;
@@ -30,6 +30,8 @@ namespace GenMailServer
         public static Boolean boolDBCache = false;
         public static int intDBCacheRate = 3600;
         public static int int3rdShow = 60;
+        public static Boolean boolMailFirstRun = false;
+        public static Boolean boolDBCheck = false;
         #endregion
         #region Main Method
         static void Main(string[] args)
@@ -79,12 +81,14 @@ namespace GenMailServer
                     intSilentTime = EmailRete;
                     intSecondShow = intMainRate;
                     int3rdShow = intDBCacheRate;
-                    TimerCallback(null);
+                    //TimerCallback(null);
                     //TimerDBCacheProcess(null);
                     ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
                     tClock = new Timer(TimerClockShow, null, 0, 1000);
-                    t = new Timer(TimerCallback, null, 0, intMainRate * 1000);
+                    tMailMethod = new Timer(TimerCallback, null, 0, intMainRate * 1000);
+                    do { } while (boolMailFirstRun == false);
                     tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);
+                    
                 }
                 catch (Exception ex)
                 {
@@ -176,15 +180,16 @@ namespace GenMailServer
                 // Display the date/time when this method got called.
                 //Console.WriteLine("In TimerCallback: " + DateTime.Now);
                 // Force a garbage collection to occur for this demo.
-                ConsoleHelper.ConsoleHelper.wl("");
-                ConsoleHelper.ConsoleHelper.wl("Running Main Method...");
-
-                //boolClockShow = false;
                 boolProcess = true;
+                #region DB Check
+                ConsoleHelper.ConsoleHelper.wl("");
+                ConsoleHelper.ConsoleHelper.wl("Running DB Check Method...");
+                //boolClockShow = false;                
                 bool boolstatus = false;
                 emailHelper.emailHelper eh = new emailHelper.emailHelper();
                 try
                 {
+                    #region Debug Mode
                     if (intEmailTestFlag == 1)
                     {
                         ConsoleHelper.ConsoleHelper.wl("Debug Mode Open...");
@@ -202,13 +207,16 @@ namespace GenMailServer
                             }
                         }
                     }
+                    #endregion
                     if (CheckDB(GenLinkString, GenCheckStr) && CheckDB(LinkString1, LinkCheckStr) && CheckDB(LinkString2, LinkCheckStr))
                     {
                         boolstatus = true;
+                        boolDBCheck = true;
                     }
                     else
                     {
                         boolstatus = false;
+                        boolDBCheck = false;
                     }
                 }
                 catch (Exception ex)
@@ -216,8 +224,14 @@ namespace GenMailServer
                     boolstatus = false;
                     ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                 }
+                ConsoleHelper.ConsoleHelper.wl("End DB Check Method Running...");
+                //ConsoleHelper.ConsoleHelper.wl("");
+                #endregion
+                #region Mail Method
                 if (boolstatus)
                 {
+                    //ConsoleHelper.ConsoleHelper.wl("");
+                    ConsoleHelper.ConsoleHelper.wl("Running Mail Method...");
                     try
                     {
                         ConsoleHelper.ConsoleHelper.wl("Trans Data to Local DB from LinkString1...");
@@ -266,15 +280,18 @@ namespace GenMailServer
                     {
                         ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                     }
-                }
+                    ConsoleHelper.ConsoleHelper.wl("End Mail Method Running...");
+                }                
                 else
                 {
                     ConsoleHelper.ConsoleHelper.wl("Error:" + "Local DB or Remote DB can not be connected!", ConsoleColor.Red, ConsoleColor.Black);
                 }
-                boolProcess = false;
-                ConsoleHelper.ConsoleHelper.wl("End Running...");
-                ConsoleHelper.ConsoleHelper.wl("");
+                #endregion
             }
+            ConsoleHelper.ConsoleHelper.wl("Mail Method Running Flag:" + boolDBCheck + "||" + boolProcess + "||" + boolDBCache);
+            ConsoleHelper.ConsoleHelper.wl("");
+            boolMailFirstRun = true;
+            boolProcess = false;
             GC.Collect();
         }
         #endregion
@@ -413,7 +430,7 @@ namespace GenMailServer
         #region 远程数据缓存处理事件
         private static void TimerDBCacheProcess(object o)
         {
-            if (!boolDBCache && !boolProcess)
+            if (!boolDBCache && !boolProcess && boolDBCheck)
             {
                 boolDBCache = true;
                 ConsoleHelper.ConsoleHelper.wl("");
@@ -454,7 +471,7 @@ namespace GenMailServer
                                                 ahLink2.ExecuteNonQuery(strSQLin);
                                             }
                                             strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                            ah.ExecuteNonQuery(strSQLin);                                            
+                                            ah.ExecuteNonQuery(strSQLin);
                                             strLastCtrlID = dr["TransNo"].ToString();
                                             boolLastCtrlID = false;
                                             ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Flag Check Fail.Please Check Last Order.", ConsoleColor.Red, ConsoleColor.Black);
@@ -523,8 +540,10 @@ namespace GenMailServer
                 {
                     ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                 }
+                ConsoleHelper.ConsoleHelper.wl("End DB Cache Running...");
             }
-            ConsoleHelper.ConsoleHelper.wl("End Running...");
+            ConsoleHelper.ConsoleHelper.wl("DB Cache Running Flag:" + boolDBCheck + "||" + boolProcess + "||" + boolDBCache);
+            ConsoleHelper.ConsoleHelper.wl("");
             boolDBCache = false;
             GC.Collect();
         }

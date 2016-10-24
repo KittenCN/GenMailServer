@@ -142,7 +142,7 @@ namespace AccessHelper
                 Close();
                 return num;
             }
-            catch
+            catch(Exception ex)
             { throw; }
         }
 
