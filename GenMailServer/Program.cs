@@ -142,7 +142,7 @@ namespace GenMailServer
             //{
             //    intSilentTime = EmailRete;
             //}
-            if (!boolProcess || !boolDBCache)
+            if (!boolProcess && !boolDBCache)
             {
                 if (!boolClockShow)
                 {
