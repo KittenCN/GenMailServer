@@ -444,17 +444,17 @@ namespace GenMailServer
                     if (Directory.Exists(url))
                     {
                         DirectoryInfo di = new DirectoryInfo(url);
-                        ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files...");
+                        ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files Of Polling...");
                         foreach (FileInfo fi in di.GetFiles("*.accdb"))
                         {
                             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(fi.FullName);
                             if (ah.ConnectTest())
                             {
-                                ConsoleHelper.ConsoleHelper.wl("DB Cache Main Method...");
+                                ConsoleHelper.ConsoleHelper.wl(Path.GetFileNameWithoutExtension(fi.ToString()) + "::DB Cache Main Method...");
                                 string strSQL = "select * from AccessQueue";
                                 DataTable dtSQL = ah.ReturnDataTable(strSQL);
                                 string strLastCtrlID = "";
-                                Boolean boolLastCtrlID = true; ;
+                                Boolean boolLastCtrlID = true;
                                 foreach (DataRow dr in dtSQL.Rows)
                                 {
                                     if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
