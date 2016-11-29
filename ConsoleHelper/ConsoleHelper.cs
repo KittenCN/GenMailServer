@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ConsoleHelper
 {
@@ -74,7 +75,14 @@ namespace ConsoleHelper
             {
                 LogBody = LogBody.Replace("'", "#");
                 LogBody = LogBody.Replace("\"", "#");
-                AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(GenLinkString);
+                string strDT = DateTime.Now.ToString("yyyyMMdd");
+                string strLinkName = "Log" + strDT + ".accdb";
+                string strLinkString = "./DB/" + strLinkName;
+                if (!File.Exists(strLinkString))
+                {
+                    File.Copy("./DB/LogTemp.accdb", strLinkString);
+                }
+                AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(strLinkString);
                 string sql = "insert into Log(Log,LogDateTime) ";
                 sql = sql + " values('" + LogBody + "',#" + DateTime.Now.ToString() + "#) ";
                 ah.ExecuteNonQuery(sql);
