@@ -71,21 +71,28 @@ namespace ConsoleHelper
         }
         public static void Log(string LogBody)
         {
-            if(boolLog==true && LogBody != null && LogBody != "")
+            try
             {
-                LogBody = LogBody.Replace("'", "#");
-                LogBody = LogBody.Replace("\"", "#");
-                string strDT = DateTime.Now.ToString("yyyyMMdd");
-                string strLinkName = "Log" + strDT + ".accdb";
-                string strLinkString = "./DB/" + strLinkName;
-                if (!File.Exists(strLinkString))
+                if (boolLog == true && LogBody != null && LogBody != "")
                 {
-                    File.Copy("./DB/LogTemp.accdb", strLinkString);
+                    LogBody = LogBody.Replace("'", "#");
+                    LogBody = LogBody.Replace("\"", "#");
+                    string strDT = DateTime.Now.ToString("yyyyMMdd");
+                    string strLinkName = "Log" + strDT + ".accdb";
+                    string strLinkString = "./DB/" + strLinkName;
+                    if (!File.Exists(strLinkString))
+                    {
+                        File.Copy("./DB/LogTemp.accdb", strLinkString);
+                    }
+                    AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(strLinkString);
+                    string sql = "insert into Log(Log,LogDateTime) ";
+                    sql = sql + " values('" + LogBody + "',#" + DateTime.Now.ToString() + "#) ";
+                    ah.ExecuteNonQuery(sql);
                 }
-                AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(strLinkString);
-                string sql = "insert into Log(Log,LogDateTime) ";
-                sql = sql + " values('" + LogBody + "',#" + DateTime.Now.ToString() + "#) ";
-                ah.ExecuteNonQuery(sql);
+            }
+            catch
+            {
+
             }
         }
     }
