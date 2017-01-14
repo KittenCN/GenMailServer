@@ -32,6 +32,7 @@ namespace GenMailServer
         public static int int3rdShow = 60;
         public static Boolean boolMailFirstRun = false;
         public static Boolean boolDBCheck = false;
+        public static DateTime dtCleanLastDay;
         #endregion
         #region Main Method
         static void Main(string[] args)
@@ -118,6 +119,19 @@ namespace GenMailServer
         #region 时间显示事件
         private static void TimerClockShow(object o)
         {
+            if ((DateTime.Now.TimeOfDay.Hours == 0 && DateTime.Now.TimeOfDay.Minutes == 0 && DateTime.Now.TimeOfDay.Seconds < 10 && DateTime.Now.Date != dtCleanLastDay) || intEmailTestFlag == 1)
+            {
+                AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                string strSQL = "update SetupConfig set LoginNum = 0";
+                if (strSQL != null && strSQL != "")
+                {
+                    ahLink2.ExecuteNonQuery(strSQL);
+                }
+                dtCleanLastDay = DateTime.Now.Date;
+                ConsoleHelper.ConsoleHelper.wl("");
+                ConsoleHelper.ConsoleHelper.wl("Current DateTime is " + DateTime.Now.ToString() + "  ::Run Method of CleanLoginNum!");
+            }
+
             if (intSecondShow > 0)
             {
                 intSecondShow--;
