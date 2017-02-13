@@ -242,7 +242,8 @@ namespace GenMailServer
                 //ConsoleHelper.ConsoleHelper.wl("");
                 #endregion
                 #region Mail Method
-                if (boolstatus)
+                //Mail Method Cancel by 2017.02.13
+                if (boolstatus && 1 == 0)
                 {
                     //ConsoleHelper.ConsoleHelper.wl("");
                     ConsoleHelper.ConsoleHelper.wl("Running Mail Method...");
