@@ -299,7 +299,9 @@ namespace GenMailServer
                 }                
                 else
                 {
-                    ConsoleHelper.ConsoleHelper.wl("Error:" + "Local DB or Remote DB can not be connected!", ConsoleColor.Red, ConsoleColor.Black);
+                    //Mail Method Cancel by 2017.02.13
+                    //ConsoleHelper.ConsoleHelper.wl("Error:" + "Local DB or Remote DB can not be connected!", ConsoleColor.Red, ConsoleColor.Black);
+                    ConsoleHelper.ConsoleHelper.wl("Mail Method had been cancelled!");
                 }
                 #endregion
             }

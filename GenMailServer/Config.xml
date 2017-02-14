@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Config>
   <!--转货远程数据库地址及邮件服务器配置-->
-  <LinkString1>G:\WorkStation\GitHub\TiffanyTransfer\BHair\bin\Debug\转货数据库.accdb</LinkString1>
+  <LinkString1>D:\WorkStation\GitHub\TiffanyTransfer\BHair\bin\Debug\转货数据库.accdb</LinkString1>
   <EmailID1></EmailID1>
   <EmailPWD1></EmailPWD1>
   <EmailAddress1></EmailAddress1>
   <EmailSMTP1></EmailSMTP1>
   <!--员工内购远程数据库地址及邮件服务器配置-->
-  <LinkString2>G:\WorkStation\GitHub\TiffanyPurchase\BHair\bin\Debug\员工内购数据库.accdb</LinkString2>
+  <LinkString2>D:\WorkStation\GitHub\TiffanyPurchase\BHair\bin\Debug\员工内购数据库.accdb</LinkString2>
   <EmailID2></EmailID2>
   <EmailPWD2></EmailPWD2>
   <EmailAddress2></EmailAddress2>
