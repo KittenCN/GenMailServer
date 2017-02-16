@@ -89,7 +89,7 @@ namespace GenMailServer
                     tMailMethod = new Timer(TimerCallback, null, 0, intMainRate * 1000);
                     do { } while (boolMailFirstRun == false);
                     tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -296,7 +296,7 @@ namespace GenMailServer
                         ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                     }
                     ConsoleHelper.ConsoleHelper.wl("End Mail Method Running...");
-                }                
+                }
                 else
                 {
                     //Mail Method Cancel by 2017.02.13
@@ -305,7 +305,7 @@ namespace GenMailServer
                 }
                 #endregion
             }
-            ConsoleHelper.ConsoleHelper.wl("Mail Method Running Flag:" + boolDBCheck + "||" + boolProcess + "||" + boolDBCache);
+            ConsoleHelper.ConsoleHelper.wl("Mail Method Running Flag::  boolDBCheck:" + boolDBCheck + "  ||  boolProcess:" + boolProcess + "  ||  boolDBCache:" + boolDBCache);
             ConsoleHelper.ConsoleHelper.wl("");
             boolMailFirstRun = true;
             boolProcess = false;
@@ -456,13 +456,13 @@ namespace GenMailServer
                 int intSuccess = 0;
                 int intError = 0;
                 string url = LinkString2.Substring(0, LinkString2.LastIndexOf("\\") + 1) + "DBCache\\";
-                try
+                if (Directory.Exists(url))
                 {
-                    if (Directory.Exists(url))
+                    DirectoryInfo di = new DirectoryInfo(url);
+                    ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files Of Polling...");
+                    foreach (FileInfo fi in di.GetFiles("*.accdb"))
                     {
-                        DirectoryInfo di = new DirectoryInfo(url);
-                        ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files Of Polling...");
-                        foreach (FileInfo fi in di.GetFiles("*.accdb"))
+                        try
                         {
                             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(fi.FullName);
                             if (ah.ConnectTest())
@@ -530,36 +530,36 @@ namespace GenMailServer
                                     }
                                     else
                                     {
-                                        ConsoleHelper.ConsoleHelper.wl("TransNo Or Operation Code Check Fail.Please Check It", ConsoleColor.Red, ConsoleColor.Black);
+                                        ConsoleHelper.ConsoleHelper.wl("TransNo Or Operation Code Check Fail.Please Check It", ConsoleColor.Magenta, ConsoleColor.Black);
                                         intError++;
                                     }
                                 }
                             }
                         }
-                        if (intSuccess > 0 || intError > 0)
+                        catch (Exception ex)
                         {
-                            ConsoleHelper.ConsoleHelper.wl("Result:");
-                            ConsoleHelper.ConsoleHelper.wl("Success:" + intSuccess);
-                            ConsoleHelper.ConsoleHelper.wl("Error:" + intError);
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
                         }
-                        else
-                        {
-                            ConsoleHelper.ConsoleHelper.wl("No Orders!");
-                        }
+                    }
+                    if (intSuccess > 0 || intError > 0)
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("Result:");
+                        ConsoleHelper.ConsoleHelper.wl("Success:" + intSuccess);
+                        ConsoleHelper.ConsoleHelper.wl("Error:" + intError);
                     }
                     else
                     {
-                        ConsoleHelper.ConsoleHelper.wl("Error:DB Cache Directory is NULL! System will be try to create it.", ConsoleColor.Red, ConsoleColor.Black);
-                        Directory.CreateDirectory(url);
+                        ConsoleHelper.ConsoleHelper.wl("No Orders!");
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                    ConsoleHelper.ConsoleHelper.wl("Error:DB Cache Directory is NULL! System will be try to create it.", ConsoleColor.Red, ConsoleColor.Black);
+                    Directory.CreateDirectory(url);
                 }
                 ConsoleHelper.ConsoleHelper.wl("End DB Cache Running...");
             }
-            ConsoleHelper.ConsoleHelper.wl("DB Cache Running Flag:" + boolDBCheck + "||" + boolProcess + "||" + boolDBCache);
+            ConsoleHelper.ConsoleHelper.wl("DB Cache Running Flag::  boolDBCheck:" + boolDBCheck + "  ||  boolProcess:" + boolProcess + "  ||  boolDBCache:" + boolDBCache);
             ConsoleHelper.ConsoleHelper.wl("");
             boolDBCache = false;
             GC.Collect();
