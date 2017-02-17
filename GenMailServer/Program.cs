@@ -4,7 +4,7 @@ using System.Xml;
 using System.Data;
 using System.Threading;
 
-namespace GenMailServer
+namespace GenManagementServer
 {
     class Program
     {
@@ -42,7 +42,7 @@ namespace GenMailServer
             CheckDB(LinkString2, LinkCheckStr);
 
             ConsoleHelper.ConsoleHelper.cInitiaze();
-            ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Mail Server");
+            ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Management Server");
             for (int i = 0; i < 10; i++)
             {
                 if (i % 2 == 0)

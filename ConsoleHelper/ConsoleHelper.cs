@@ -67,7 +67,7 @@ namespace ConsoleHelper
             Console.BackgroundColor = ccDefBackColer;
             Console.WindowWidth = 120;
             Console.WindowHeight = 33;
-            Console.Title = "GMS-General Mail Server";
+            Console.Title = "GMS-General Management Server";
         }
         public static void Log(string LogBody)
         {
