@@ -4,7 +4,7 @@ using System.Xml;
 using System.Data;
 using System.Threading;
 
-namespace GenManagementServer
+namespace GMS
 {
     class Program
     {

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenMailServer", "GenMailServer\GenMailServer.csproj", "{00825AFC-A3BE-4BFC-B427-7266E04F8AD6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMS", "GenMailServer\GMS.csproj", "{00825AFC-A3BE-4BFC-B427-7266E04F8AD6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessHelper", "AccessHelper\AccessHelper.csproj", "{55B3E2C2-D8CE-4A7A-A0D9-454B1D974A0E}"
 EndProject
