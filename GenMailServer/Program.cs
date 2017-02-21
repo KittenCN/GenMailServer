@@ -37,10 +37,6 @@ namespace GenManagementServer
         #region Main Method
         static void Main(string[] args)
         {
-            CheckDB(GenLinkString, GenCheckStr);
-            CheckDB(LinkString1, LinkCheckStr);
-            CheckDB(LinkString2, LinkCheckStr);
-
             ConsoleHelper.ConsoleHelper.cInitiaze();
             ConsoleHelper.ConsoleHelper.wl("Welcome to GMS-General Management Server");
             for (int i = 0; i < 10; i++)
@@ -78,6 +74,10 @@ namespace GenManagementServer
                     strEmailTestAddress = xnCon.SelectSingleNode("EmailTestAddress").InnerText;
                     intDBCacheRate = int.Parse(xnCon.SelectSingleNode("DBCacheRate").InnerText);
                     ConsoleHelper.ConsoleHelper.wl("Reading Config File Successfully...");
+
+                    CheckDB(GenLinkString, GenCheckStr);
+                    CheckDB(LinkString1, LinkCheckStr);
+                    CheckDB(LinkString2, LinkCheckStr);               
 
                     intSilentTime = EmailRete;
                     intSecondShow = intMainRate;
