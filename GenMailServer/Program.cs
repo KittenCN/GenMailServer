@@ -466,17 +466,17 @@ namespace GMS
                         string strEndDate = DateTime.Now.Year.ToString() + "/7/1";
                         if (DateTime.Now.Month == 2 && DateTime.Now.Day == 1)
                         {
-                            string strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where EmpDate <'" + strMaxEmpDate + "'";
+                            string strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where EmpDate <#" + strMaxEmpDate + "#";
                             ahLink2.ExecuteNonQuery(strSQL);
                         }
                         if (DateTime.Now.Month >= 2 && DateTime.Now.Month <= 6)
                         {
-                            string strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d',#" + strBeginDate + "#,EmpDate)) where EmpDate ='" + strMaxEmpDate + "'";
+                            string strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d',#" + strBeginDate + "#,EmpDate)) where EmpDate =#" + strMaxEmpDate + "#";
                             ahLink2.ExecuteNonQuery(strSQL);
                         }
                         if (DateTime.Now.Month == 7 && DateTime.Now.Day == 1)
                         {
-                            string strSQL = "update Users set RestAmount = RestAmount + 50000 where EmpDate <'" + strMaxEmpDate + "'";
+                            string strSQL = "update Users set RestAmount = RestAmount + 50000 where EmpDate <#" + strMaxEmpDate + "#";
                             ahLink2.ExecuteNonQuery(strSQL);
                         }
                         if (DateTime.Now.Month >= 7)
