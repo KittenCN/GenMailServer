@@ -33,6 +33,7 @@ namespace GMS
         public static Boolean boolMailFirstRun = false;
         public static Boolean boolDBCheck = false;
         public static DateTime dtCleanLastDay;
+        public static Boolean boolCheckMoney = false;
         #endregion
         #region Main Method
         static void Main(string[] args)
@@ -452,6 +453,47 @@ namespace GMS
                 boolDBCache = true;
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("Running DB Cache Method...");
+                ConsoleHelper.ConsoleHelper.wl("Running Amount Calculation Method...");
+                //计算额度
+                if (!boolCheckMoney)
+                {
+                    try
+                    {
+                        AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                        boolCheckMoney = true;
+                        string strMaxEmpDate = DateTime.Now.AddDays(-180).ToShortDateString();
+                        string strBeginDate = DateTime.Now.Year.ToString() + "/2/1";
+                        string strEndDate = DateTime.Now.Year.ToString() + "/7/1";
+                        if (DateTime.Now.Month == 2 && DateTime.Now.Day == 1)
+                        {
+                            string strSQL = "update Users set RestAmount = 50000 where EmpDate <'" + strMaxEmpDate + "'";
+                            ahLink2.ExecuteNonQuery(strSQL);
+                        }
+                        if (DateTime.Now.Month >= 2 && DateTime.Now.Month <= 6)
+                        {
+                            string strSQL = "update Users set RestAmount = 50000 * (datediff('d',#" + strBeginDate + "#,EmpDate)) where EmpDate ='" + strMaxEmpDate + "'";
+                            ahLink2.ExecuteNonQuery(strSQL);
+                        }
+                        if (DateTime.Now.Month == 7 && DateTime.Now.Day == 1)
+                        {
+                            string strSQL = "update Users set RestAmount = RestAmount + 50000 where EmpDate <'" + strMaxEmpDate + "'";
+                            ahLink2.ExecuteNonQuery(strSQL);
+                        }
+                        if (DateTime.Now.Month >= 7)
+                        {
+                            string strSQL = "update Users set RestAmount = (50000 * (datediff('d',#" + strBeginDate + "#,EmpDate) / 180)) + 50000 where EmpDate =#" + strMaxEmpDate + "# and EmpDate < #" + strEndDate + "#";
+                            ahLink2.ExecuteNonQuery(strSQL);
+                            string strSQL2 = "update Users set RestAmount = 50000 * (datediff('d',#" + strEndDate + "#,EmpDate) / 180) where EmpDate =#" + strMaxEmpDate + "# and EmpDate >= #" + strEndDate + "#";
+                            ahLink2.ExecuteNonQuery(strSQL2);
+                        }
+                        ConsoleHelper.ConsoleHelper.wl("Amount Calculation Running Success!");
+                    }
+                    catch(Exception ex)
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                    }
+
+                }
                 ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Directory...");
                 int intSuccess = 0;
                 int intError = 0;
