@@ -467,7 +467,8 @@ namespace GMS
                         string strBeginDate2 = DateTime.Now.Year.ToString() + "/8/1";
                         string strEndDate2 = DateTime.Parse(DateTime.Now.AddYears(1).Year.ToString() + "/02/01 00:00:00").AddDays(-1).ToShortDateString();
 
-                        string strSQL = "update Users set UsedAmount = 0, RestAmount = 0 where EmpDate >#" + strMaxEmpDate + "#";
+
+                        string strSQL = "update Users set TotalAmount = 0, UsedAmount = 0, RestAmount = 0 where EmpDate >=#" + strMaxEmpDate + "# or EmpDate is null" ;
                         ahLink2.ExecuteNonQuery(strSQL);
                         if (DateTime.Now.Month == 2 && DateTime.Now.Day == 1)
                         {
@@ -476,7 +477,7 @@ namespace GMS
                         }
                         if (DateTime.Now.Month >= 2 && DateTime.Now.Month <= 7)
                         {
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180) where EmpDate =#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate + "# ";
+                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate + "# ";
                             ahLink2.ExecuteNonQuery(strSQL);
                         }
                         if (DateTime.Now.Month == 8 && DateTime.Now.Day == 1)
@@ -486,9 +487,9 @@ namespace GMS
                         }
                         if (DateTime.Now.Month >= 8 || DateTime.Now.Month == 1)
                         {
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate =#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
+                            strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
                             ahLink2.ExecuteNonQuery(strSQL);
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate =#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
+                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
                             ahLink2.ExecuteNonQuery(strSQL);
                         }
                         ConsoleHelper.ConsoleHelper.wl("Amount Calculation Running Success!");
