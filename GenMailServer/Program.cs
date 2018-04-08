@@ -637,6 +637,7 @@ namespace GMS
             double douResult = 0.00;
             double douCPrice = 0.00;
             double douTPrice = 0.00;
+            string strBeginDate = DateTime.Now.Year.ToString() + "/2/1";
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
             string strSQL = "select RestAmount from Users where UID='" + UID + "' and IsDelete=0 ";
             DataTable dtSQL = ah.ReturnDataTable(strSQL);
@@ -648,7 +649,7 @@ namespace GMS
             {
                 douCPrice = 0.00;
             }
-            strSQL = "select * from ApplicationInfo where Applicants='" + UID + "' and IsDelete=0 and AppState>=0 and AppState<6 ";
+            strSQL = "select * from ApplicationInfo where Applicants='" + UID + "' and IsDelete=0 and AppState>=0 and AppState<6 and ApplicantsDate >= #" + strBeginDate + "#";
             dtSQL = ah.ReturnDataTable(strSQL);
             if (dtSQL != null && dtSQL.Rows.Count > 0)
             {
