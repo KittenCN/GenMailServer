@@ -546,7 +546,7 @@ namespace GMS
                                             else
                                             {
                                                 strLastCtrlID = dr["TransNo"].ToString();
-                                                if (GetTotalPricefromUID(strUID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
+                                                if (GetTotalPricefromUID(strUID, strLastCtrlID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
                                                 {
                                                     AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
                                                     if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
@@ -632,7 +632,7 @@ namespace GMS
             }
             return strResult;
         }
-        private static double GetTotalPricefromUID(string UID)
+        private static double GetTotalPricefromUID(string UID, string TransNum)
         {
             double douResult = 0.00;
             double douCPrice = 0.00;
@@ -649,7 +649,7 @@ namespace GMS
             {
                 douCPrice = 0.00;
             }
-            strSQL = "select * from ApplicationInfo where Applicants='" + UID + "' and IsDelete=0 and AppState>=0 and AppState<6 and ApplicantsDate >= #" + strBeginDate + "#";
+            strSQL = "select * from ApplicationInfo where Applicants='" + UID + "' and IsDelete=0 and AppState>=0 and AppState<6 and ApplicantsDate >= #" + strBeginDate + "# and TransNo <> '" + TransNum + "'";
             dtSQL = ah.ReturnDataTable(strSQL);
             if (dtSQL != null && dtSQL.Rows.Count > 0)
             {
