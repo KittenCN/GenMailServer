@@ -34,6 +34,7 @@ namespace GMS
         public static Boolean boolDBCheck = false;
         public static DateTime dtCleanLastDay;
         public static Boolean boolCheckMoney = false;
+        public static int intDBCPFlag = 0;
         #endregion
         #region Main Method
         static void Main(string[] args)
@@ -74,6 +75,7 @@ namespace GMS
                     intMainRate = int.Parse(xnCon.SelectSingleNode("MainRate").InnerText);
                     strEmailTestAddress = xnCon.SelectSingleNode("EmailTestAddress").InnerText;
                     intDBCacheRate = int.Parse(xnCon.SelectSingleNode("DBCacheRate").InnerText);
+                    intDBCPFlag = int.Parse(xnCon.SelectSingleNode("DBCacheProcessFlag").InnerText);
                     ConsoleHelper.ConsoleHelper.wl("Reading Config File Successfully...");
 
                     CheckDB(GenLinkString, GenCheckStr);
@@ -89,8 +91,7 @@ namespace GMS
                     tClock = new Timer(TimerClockShow, null, 0, 1000);
                     tMailMethod = new Timer(TimerCallback, null, 0, intMainRate * 1000);
                     do { } while (boolMailFirstRun == false);
-                    tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);
-
+                    tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);                    
                 }
                 catch (Exception ex)
                 {
@@ -318,7 +319,8 @@ namespace GMS
         {
             Boolean boolResult = false;
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(strDBAddress);
-            if (ah.ConnectTest())
+            string strConnResult = ah.ConnectTest();
+            if (strConnResult == "T")
             {
                 try
                 {
@@ -441,11 +443,12 @@ namespace GMS
             else
             {
                 boolResult = false;
+                ConsoleHelper.ConsoleHelper.wl("Error:" + strConnResult.ToString(), ConsoleColor.Red, ConsoleColor.Black);
             }
             return boolResult;
         }
         #endregion
-        #region 远程数据缓存处理事件
+        #region 远程数据操作
         private static void TimerDBCacheProcess(object o)
         {
             if (!boolDBCache && !boolProcess && boolDBCheck)
@@ -453,6 +456,7 @@ namespace GMS
                 boolDBCache = true;
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("Running DB Cache Method...");
+                #region 总额度计算
                 ConsoleHelper.ConsoleHelper.wl("Running Amount Calculation Method...");
                 //计算额度
                 if (!boolCheckMoney)
@@ -497,8 +501,10 @@ namespace GMS
                     catch(Exception ex)
                     {
                         ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
-                    }
+                    }                   
                 }
+                #endregion
+                #region 远程数据缓存处理事件
                 ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Directory...");
                 int intSuccess = 0;
                 int intError = 0;
@@ -507,93 +513,38 @@ namespace GMS
                 {
                     DirectoryInfo di = new DirectoryInfo(url);
                     ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Files Of Polling...");
-                    foreach (FileInfo fi in di.GetFiles("*.accdb"))
+                    if(intDBCPFlag == 0)
                     {
-                        try
+                        foreach (FileInfo fi in di.GetFiles("*.accdb"))
                         {
-                            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(fi.FullName);
-                            if (ah.ConnectTest())
+                            var DBCResult = DBCacheProcessCore(fi.FullName, fi.ToString());
+                            intSuccess += DBCResult.Item1;
+                            intError += DBCResult.Item2;
+                        }
+                    }
+                   else if(intDBCPFlag == 1)
+                    {
+                        AccessHelper.AccessHelper PurchaseLink = new AccessHelper.AccessHelper(LinkString2);
+                        string strSQL = "select UID from [Users] where IsDelete = 0";
+                        DataTable dtTable = PurchaseLink.ReturnDataTable(strSQL);
+                        if(dtTable.Rows.Count > 0)
+                        {
+                            foreach(DataRow dr in dtTable.Rows)
                             {
-                                ConsoleHelper.ConsoleHelper.wl(Path.GetFileNameWithoutExtension(fi.ToString()) + "::DB Cache Main Method...");
-                                string strSQL = "select * from AccessQueue";
-                                DataTable dtSQL = ah.ReturnDataTable(strSQL);
-                                string strLastCtrlID = "";
-                                Boolean boolLastCtrlID = true;
-                                foreach (DataRow dr in dtSQL.Rows)
+                                if(dr[0].ToString() != "")
                                 {
-                                    try
-                                    {
-                                        if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
-                                        {
-                                            string strUID = dr["operation"].ToString().Substring(5);
-                                            if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
-                                            {
-                                                string strSQLin = "";
-                                                AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                                                if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
-                                                {
-                                                    ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                    strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
-                                                    ahLink2.ExecuteNonQuery(strSQLin);
-                                                }
-                                                strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                                ah.ExecuteNonQuery(strSQLin);
-                                                strLastCtrlID = dr["TransNo"].ToString();
-                                                boolLastCtrlID = false;
-                                                ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Flag Check Fail.Please Check Last Order.", ConsoleColor.Red, ConsoleColor.Black);
-                                                intError++;
-                                            }
-                                            else
-                                            {
-                                                strLastCtrlID = dr["TransNo"].ToString();
-                                                if (GetTotalPricefromUID(strUID, strLastCtrlID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
-                                                {
-                                                    AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                                                    if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
-                                                    {
-                                                        ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                        string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                                        ah.ExecuteNonQuery(strSQLin);
-                                                        boolLastCtrlID = true;
-                                                        ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Process Success!");
-                                                        intSuccess++;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    string strSQLin = "";
-                                                    AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                                                    if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
-                                                    {
-                                                        ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
-                                                        strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
-                                                        ahLink2.ExecuteNonQuery(strSQLin);
-                                                    }
-                                                    strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
-                                                    ah.ExecuteNonQuery(strSQLin);
-                                                    boolLastCtrlID = false;
-                                                    ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Quota Check Fail.Please Check It", ConsoleColor.Red, ConsoleColor.Black);
-                                                    intError++;
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            ConsoleHelper.ConsoleHelper.wl("TransNo Or Operation Code Check Fail.Please Check It", ConsoleColor.Magenta, ConsoleColor.Black);
-                                            intError++;
-                                        }
-                                    }
-                                    catch(Exception er)
-                                    {
-                                        ConsoleHelper.ConsoleHelper.wl("Error:" + er.ToString(), ConsoleColor.Red, ConsoleColor.Black);
-                                    }
+                                    string strName = GetASCII(dr[0].ToString()) + ".accdb";
+                                    string strFullName = url + strName;
+                                    var DBCResult = DBCacheProcessCore(strFullName, strName);
+                                    intSuccess += DBCResult.Item1;
+                                    intError += DBCResult.Item2;
                                 }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
-                        }
+                    }
+                    else
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("Error:Config file Error!", ConsoleColor.Red, ConsoleColor.Black);
                     }
                     if (intSuccess > 0 || intError > 0)
                     {
@@ -618,6 +569,7 @@ namespace GMS
             boolDBCache = false;
             GC.Collect();
         }
+        #endregion
         #endregion
         #region 子过程
         private static string GetUIDfromTransNum(string TransNum)
@@ -667,6 +619,115 @@ namespace GMS
             }
             douResult = douCPrice - douTPrice;
             return douResult;
+        }
+        private static Tuple<int, int> DBCacheProcessCore(string strDB_Add, string strDB_Name)
+        {
+            int intSuccess = 0;
+            int intError = 0;
+
+            try
+            {
+                AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(strDB_Add);
+                string strConnResult = ah.ConnectTest();
+                if (strConnResult == "T")
+                {
+                    ConsoleHelper.ConsoleHelper.wl(Path.GetFileNameWithoutExtension(strDB_Name) + "::DB Cache Main Method...");
+                    string strSQL = "select * from AccessQueue";
+                    DataTable dtSQL = ah.ReturnDataTable(strSQL);
+                    string strLastCtrlID = "";
+                    Boolean boolLastCtrlID = true;
+                    foreach (DataRow dr in dtSQL.Rows)
+                    {
+                        try
+                        {
+                            if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
+                            {
+                                string strUID = dr["operation"].ToString().Substring(5);
+                                if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
+                                {
+                                    string strSQLin = "";
+                                    AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                    if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                    {
+                                        ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
+                                        strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
+                                        ahLink2.ExecuteNonQuery(strSQLin);
+                                    }
+                                    strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                    ah.ExecuteNonQuery(strSQLin);
+                                    strLastCtrlID = dr["TransNo"].ToString();
+                                    boolLastCtrlID = false;
+                                    ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Flag Check Fail.Please Check Last Order.", ConsoleColor.Red, ConsoleColor.Black);
+                                    intError++;
+                                }
+                                else
+                                {
+                                    strLastCtrlID = dr["TransNo"].ToString();
+                                    if (GetTotalPricefromUID(strUID, strLastCtrlID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
+                                    {
+                                        AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                        if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                        {
+                                            ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
+                                            string strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                            ah.ExecuteNonQuery(strSQLin);
+                                            boolLastCtrlID = true;
+                                            ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Process Success!");
+                                            intSuccess++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        string strSQLin = "";
+                                        AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                        if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
+                                        {
+                                            ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
+                                            strSQLin = "update ApplicationInfo set AppState=-1 where TransNo='" + dr["TransNo"].ToString() + "' ";
+                                            ahLink2.ExecuteNonQuery(strSQLin);
+                                        }
+                                        strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                        ah.ExecuteNonQuery(strSQLin);
+                                        boolLastCtrlID = false;
+                                        ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Quota Check Fail.Please Check It", ConsoleColor.Red, ConsoleColor.Black);
+                                        intError++;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ConsoleHelper.ConsoleHelper.wl("TransNo Or Operation Code Check Fail.Please Check It", ConsoleColor.Magenta, ConsoleColor.Black);
+                                intError++;
+                            }
+                        }
+                        catch (Exception er)
+                        {
+                            ConsoleHelper.ConsoleHelper.wl("Error:" + er.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                        }
+                    }
+                }
+                else
+                {
+                    ConsoleHelper.ConsoleHelper.wl("Error:" + strConnResult.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+            }
+
+            return new Tuple<int, int>(intSuccess, intError);
+        }
+        private static string GetASCII(string strIN)
+        {
+            string strResult = null;
+            byte[] array = System.Text.Encoding.ASCII.GetBytes(strIN);  //数组array为对应的ASCII数组     
+            for (int i = 0; i < array.Length; i++)
+            {
+                int asciicode = (int)(array[i]);
+                strResult += Convert.ToString(asciicode);//字符串ASCIIstr2 为对应的ASCII字符串
+            }
+            return strResult;
         }
         #endregion
     }

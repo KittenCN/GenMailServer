@@ -112,18 +112,19 @@ namespace AccessHelper
         /// 测试是否能够连通
         /// </summary>
         /// <returns>布尔值</returns>
-        public bool ConnectTest()
+        public string ConnectTest()
         {
+            string strResult = "T";
             try
             {
                 connect.Open();
             }
             catch(Exception ex)
-            {
-                connect.Close();
-                return false;
+            {                
+                strResult = "F::" + ex.Message.ToString();
             }
-            return true;
+            connect.Close();
+            return strResult;
         }
 
         /// <summary>
