@@ -643,6 +643,23 @@ namespace GMS
                             if (dr["TransNo"] != null && dr["TransNo"].ToString() != "" && dr["operation"].ToString().Substring(0, 5) == "Cache")
                             {
                                 string strUID = dr["operation"].ToString().Substring(5);
+                                string strDBCheck = dr["SqlStr"].ToString().ToLower().Replace("from ", "$");
+                                strDBCheck = strDBCheck.Replace(" ", "");
+                                if (dr["SqlStr"].ToString().ToLower().Substring(1, "create".Length) == "create" && strLastCtrlID != dr["TransNo"].ToString() && strDBCheck.Split('$')[1].ToLower().Substring(1, "applicationInfo".Length) == "applicationInfo")
+                                {
+                                    string strSQLin = "select * from ApplicationInfo where TransNo='" + dr["TransNo"].ToString() + "' ";
+                                    AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                    DataTable dtSQLin = ahLink2.ReturnDataTable(strSQLin);
+                                    if(dtSQLin.Rows.Count > 0)
+                                    {
+                                        strSQLin = "delete from AccessQueue where ID=" + dr["ID"].ToString() + " ";
+                                        ah.ExecuteNonQuery(strSQLin);
+                                        //strLastCtrlID = dr["TransNo"].ToString();
+                                        boolLastCtrlID = false;
+                                        ConsoleHelper.ConsoleHelper.wl("Order:" + dr["TransNo"].ToString() + "::Repeat Check Fail.Please Check Last Order.", ConsoleColor.Red, ConsoleColor.Black);
+                                        intError++;
+                                    }
+                                }
                                 if (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == false)
                                 {
                                     string strSQLin = "";
@@ -665,7 +682,7 @@ namespace GMS
                                     strLastCtrlID = dr["TransNo"].ToString();
                                     if (GetTotalPricefromUID(strUID, strLastCtrlID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
                                     {
-                                        AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                                        AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);                                       
                                         if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
                                         {
                                             ahLink2.ExecuteNonQuery(dr["SqlStr"].ToString());
