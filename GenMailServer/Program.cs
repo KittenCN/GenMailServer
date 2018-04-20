@@ -668,7 +668,7 @@ namespace GMS
                                             boolRepeatCheck = false;
                                         }
                                     }
-                                    else if(strDBCheck.Split('$')[1].ToLower().Substring(0, "ApplicationDetail".Length) == "ApplicationDetail".ToLower() || strDBCheck.Split('$')[1].ToLower().Substring(0, "[ApplicationDetail]".Length) == "[ApplicationDetail]".ToLower())
+                                    else if((strDBCheck.Split('$')[1].ToLower().Substring(0, "ApplicationDetail".Length) == "ApplicationDetail".ToLower() || strDBCheck.Split('$')[1].ToLower().Substring(0, "[ApplicationDetail]".Length) == "[ApplicationDetail]".ToLower()) && boolRepeatCheck == true)
                                     {
                                         string strSQLin = "select * from ApplicationDetail where TransNo='" + dr["TransNo"].ToString() + "' ";
                                         AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
