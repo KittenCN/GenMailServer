@@ -607,9 +607,25 @@ namespace GMS
             {
                 foreach (DataRow dr in dtSQL.Rows)
                 {
-                    if (dr["TotalPrice"] != null && dr["TotalPrice"].ToString() != "")
+                    //if (dr["TotalPrice"] != null && dr["TotalPrice"].ToString() != "")
+                    //{
+                    //    douTPrice += double.Parse(dr["TotalPrice"].ToString());
+                    //}
+                    if(dr["TransNo"] != null && dr["TransNo"].ToString() != "")
                     {
-                        douTPrice += double.Parse(dr["TotalPrice"].ToString());
+                        string strSQLdetail = "select * from ApplicationDetail where IsDelete = 0 and TransNo='" + dr["TransNo"].ToString() + "' ";
+                        AccessHelper.AccessHelper ahdetail = new AccessHelper.AccessHelper(LinkString2);
+                        DataTable dtdetail = ahdetail.ReturnDataTable(strSQLdetail);
+                        foreach (DataRow drdetail in dtdetail.Rows)
+                        {
+                            if (drdetail["ItemID"] != null && drdetail["ItemID"].ToString() != "")
+                            {
+                                if(!GetItemStatus(drdetail["ItemID"].ToString()))
+                                {
+                                    douTPrice += double.Parse(drdetail["FinalPrice"].ToString());
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -785,6 +801,25 @@ namespace GMS
                 strResult += Convert.ToString(asciicode);//字符串ASCIIstr2 为对应的ASCII字符串
             }
             return strResult;
+        }
+        private static Boolean GetItemStatus(string strItemID)
+        {
+            Boolean boolResult = false;
+            string strSQL = "select * from Items where ItemID='" + strItemID + "' and IsDelete = 0";
+            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
+            DataTable dt = ah.ReturnDataTable(strSQL);
+            if(dt.Rows[0]["IsSpecial"] != null && dt.Rows[0]["IsSpecial"].ToString() != "")
+            {
+                if(dt.Rows[0]["IsSpecial"].ToString() == "0")
+                {
+                    boolResult = false;
+                }
+                else
+                {
+                    boolResult = true;
+                }
+            }
+            return boolResult;
         }
         #endregion
     }
