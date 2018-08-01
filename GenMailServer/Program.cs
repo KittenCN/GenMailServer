@@ -491,8 +491,8 @@ namespace GMS
                         }
                         if (DateTime.Now.Month >= 8 || DateTime.Now.Month == 1)
                         {
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
-                            ahLink2.ExecuteNonQuery(strSQL);
+                            //strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
+                            //ahLink2.ExecuteNonQuery(strSQL);
                             strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
                             ahLink2.ExecuteNonQuery(strSQL);
                         }
