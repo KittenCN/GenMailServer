@@ -35,6 +35,7 @@ namespace GMS
         public static DateTime dtCleanLastDay;
         public static Boolean boolCheckMoney = false;
         public static int intDBCPFlag = 0;
+        public static string[] commands = { "start", "fixMoney" };
         #endregion
         #region Main Method
         static void Main(string[] args)
@@ -77,6 +78,7 @@ namespace GMS
                     intDBCacheRate = int.Parse(xnCon.SelectSingleNode("DBCacheRate").InnerText);
                     intDBCPFlag = int.Parse(xnCon.SelectSingleNode("DBCacheProcessFlag").InnerText);
                     ConsoleHelper.ConsoleHelper.wl("Reading Config File Successfully...");
+                    string commandString = "startX";
 
                     CheckDB(GenLinkString, GenCheckStr);
                     CheckDB(LinkString1, LinkCheckStr);
@@ -87,11 +89,37 @@ namespace GMS
                     int3rdShow = intDBCacheRate;
                     //TimerCallback(null);
                     //TimerDBCacheProcess(null);
-                    ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
-                    tClock = new Timer(TimerClockShow, null, 0, 1000);
-                    tMailMethod = new Timer(TimerCallback, null, 0, intMainRate * 1000);
-                    do { } while (boolMailFirstRun == false);
-                    tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);                    
+                    if (intEmailTestFlag != 1)
+                    {
+                        commandString = "startX";  
+                    }
+                    else if (intEmailTestFlag == 1)
+                    {
+                        ConsoleHelper.ConsoleHelper.wl("DEBUG:>");
+                        commandString = Console.ReadLine();
+                    }
+line1:
+                    switch (commandString)
+                    {
+                        case "startX":
+                            ConsoleHelper.ConsoleHelper.wl("Begin Timer Methods...");
+                            tClock = new Timer(TimerClockShow, null, 0, 1000);
+                            tMailMethod = new Timer(TimerCallback, null, 0, intMainRate * 1000);
+                            do { } while (boolMailFirstRun == false);
+                            tDBCache = new Timer(TimerDBCacheProcess, null, 0, intDBCacheRate * 1000);
+                            break;
+                        case "fixMoney":
+                            fixMoney();
+                            ConsoleHelper.ConsoleHelper.wl("DEBUG:>");
+                            commandString = Console.ReadLine();
+                            goto line1;
+                        default:
+                            ConsoleHelper.ConsoleHelper.wl("Command Error! Re-Input:");
+                            ConsoleHelper.ConsoleHelper.wl("DEBUG:>");
+                            commandString = Console.ReadLine();
+                            goto line1;
+                    }
+                   
                 }
                 catch (Exception ex)
                 {
@@ -206,23 +234,23 @@ namespace GMS
                 try
                 {
                     #region Debug Mode
-                    if (intEmailTestFlag == 1)
-                    {
-                        ConsoleHelper.ConsoleHelper.wl("Debug Mode Open...");
-                        for (int i = 1; i <= 2; i++)
-                        {
-                            string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", strEmailTestAddress, i);
-                            if (strDebugResult == "Success!")
-                            {
-                                ConsoleHelper.ConsoleHelper.wl("The Debug Mail With LinkString[" + i + "] has been sent successfully!");
-                                Thread.Sleep(EmailRete * 1000);
-                            }
-                            else
-                            {
-                                ConsoleHelper.ConsoleHelper.wl("LinkString[" + i + "] had Error:" + strDebugResult, ConsoleColor.Red, ConsoleColor.Black);
-                            }
-                        }
-                    }
+                    //if (intEmailTestFlag == 1)
+                    //{
+                    //    ConsoleHelper.ConsoleHelper.wl("Debug Mode Open...");
+                    //    for (int i = 1; i <= 2; i++)
+                    //    {
+                    //        string strDebugResult = emailHelper.emailHelper.SendEmail("TestSubject", "TestBody", strEmailTestAddress, i);
+                    //        if (strDebugResult == "Success!")
+                    //        {
+                    //            ConsoleHelper.ConsoleHelper.wl("The Debug Mail With LinkString[" + i + "] has been sent successfully!");
+                    //            Thread.Sleep(EmailRete * 1000);
+                    //        }
+                    //        else
+                    //        {
+                    //            ConsoleHelper.ConsoleHelper.wl("LinkString[" + i + "] had Error:" + strDebugResult, ConsoleColor.Red, ConsoleColor.Black);
+                    //        }
+                    //    }
+                    //}
                     #endregion
                     if (CheckDB(GenLinkString, GenCheckStr) && CheckDB(LinkString1, LinkCheckStr) && CheckDB(LinkString2, LinkCheckStr))
                     {
@@ -458,51 +486,7 @@ namespace GMS
                 ConsoleHelper.ConsoleHelper.wl("Running DB Cache Method...");
                 #region 总额度计算
                 ConsoleHelper.ConsoleHelper.wl("Running Amount Calculation Method...");
-                //计算额度
-                if (!boolCheckMoney)
-                {
-                    try
-                    {
-                        AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
-                        boolCheckMoney = true;
-                        string strMaxEmpDate = DateTime.Now.AddDays(-180).ToShortDateString();
-                        string strBeginDate = DateTime.Now.Year.ToString() + "/2/1";
-                        string strEndDate = DateTime.Parse(DateTime.Now.Year.ToString() + "/08/01 00:00:00").AddDays(-1).ToShortDateString();
-                        string strBeginDate2 = DateTime.Now.Year.ToString() + "/8/1";
-                        string strEndDate2 = DateTime.Parse(DateTime.Now.AddYears(1).Year.ToString() + "/02/01 00:00:00").AddDays(-1).ToShortDateString();
-
-
-                        string strSQL = "update Users set TotalAmount = 0, UsedAmount = 0, RestAmount = 0 where EmpDate >=#" + strMaxEmpDate + "# or EmpDate is null" ;
-                        ahLink2.ExecuteNonQuery(strSQL);
-                        if (DateTime.Now.Month == 2 && DateTime.Now.Day == 1)
-                        {
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where EmpDate <#" + strMaxEmpDate + "#";
-                            ahLink2.ExecuteNonQuery(strSQL);
-                        }
-                        if (DateTime.Now.Month >= 2 && DateTime.Now.Month <= 7)
-                        {
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate + "# ";
-                            ahLink2.ExecuteNonQuery(strSQL);
-                        }
-                        if (DateTime.Now.Month == 8 && DateTime.Now.Day == 1)
-                        {
-                            strSQL = "update Users set RestAmount = RestAmount + 50000 where EmpDate <#" + strMaxEmpDate + "#";
-                            ahLink2.ExecuteNonQuery(strSQL);
-                        }
-                        if (DateTime.Now.Month >= 8 || DateTime.Now.Month == 1)
-                        {
-                            //strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
-                            //ahLink2.ExecuteNonQuery(strSQL);
-                            strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
-                            ahLink2.ExecuteNonQuery(strSQL);
-                        }
-                        ConsoleHelper.ConsoleHelper.wl("Amount Calculation Running Success!");
-                    }
-                    catch(Exception ex)
-                    {
-                        ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
-                    }                   
-                }
+                CalculatQuota();
                 #endregion
                 #region 远程数据缓存处理事件
                 ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Directory...");
@@ -584,7 +568,7 @@ namespace GMS
             }
             return strResult;
         }
-        private static double GetTotalPricefromUID(string UID, string TransNum)
+        private static double GetRestPricefromUID(string UID, string TransNum)
         {
             double douResult = 0.00;
             double douCPrice = 0.00;
@@ -735,7 +719,7 @@ namespace GMS
                                     else
                                     {
                                         strLastCtrlID = dr["TransNo"].ToString();
-                                        if (GetTotalPricefromUID(strUID, strLastCtrlID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
+                                        if (GetRestPricefromUID(strUID, strLastCtrlID) - double.Parse(dr["Buy"].ToString()) >= 0 || dr["Buy"].ToString() == "" || double.Parse(dr["Buy"].ToString()) == 0 || (strLastCtrlID == dr["TransNo"].ToString() && boolLastCtrlID == true && dr["DetailID"].ToString() == "1"))
                                         {
                                             AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
                                             if (dr["SqlStr"] != null && dr["SqlStr"].ToString() != "")
@@ -808,18 +792,162 @@ namespace GMS
             string strSQL = "select * from Items where ItemID='" + strItemID + "' and IsDelete = 0";
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
             DataTable dt = ah.ReturnDataTable(strSQL);
-            if(dt.Rows[0]["IsSpecial"] != null && dt.Rows[0]["IsSpecial"].ToString() != "")
+            if(dt.Rows.Count > 0)
             {
-                if(dt.Rows[0]["IsSpecial"].ToString() == "0")
+                if (dt.Rows[0]["IsSpecial"] != null && dt.Rows[0]["IsSpecial"].ToString() != "")
                 {
-                    boolResult = false;
-                }
-                else
-                {
-                    boolResult = true;
+                    if (dt.Rows[0]["IsSpecial"].ToString() == "0")
+                    {
+                        boolResult = false;
+                    }
+                    else
+                    {
+                        boolResult = true;
+                    }
                 }
             }
             return boolResult;
+        }
+        private static void CalculatQuota()
+        {
+            //计算额度
+            if (!boolCheckMoney)
+            {
+                try
+                {
+                    AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+                    boolCheckMoney = true;
+                    string strMaxEmpDate = DateTime.Now.AddDays(-180).ToShortDateString();
+                    string strBeginDate = DateTime.Now.Year.ToString() + "/2/1";
+                    string strEndDate = DateTime.Parse(DateTime.Now.Year.ToString() + "/08/01 00:00:00").AddDays(-1).ToShortDateString();
+                    string strBeginDate2 = DateTime.Now.Year.ToString() + "/8/1";
+                    string strEndDate2 = DateTime.Parse(DateTime.Now.AddYears(1).Year.ToString() + "/02/01 00:00:00").AddDays(-1).ToShortDateString();
+                    DateTime dtCurrent = DateTime.Now;
+                    Boolean boolDateFlag1 = false;
+                    Boolean boolDateFlag2 = false;
+
+                    if(intEmailTestFlag == 1)
+                    {
+                        if(DateTime.Now.Month >= 2 && DateTime.Now.Month < 8)
+                        {
+                            dtCurrent = DateTime.Parse(strBeginDate);
+                            boolDateFlag1 = true;
+                            boolDateFlag2 = false;
+                        }
+                        else if(DateTime.Now.Month == 1)
+                        {
+                            dtCurrent = DateTime.Parse(DateTime.Now.AddYears(-1).Year.ToString() + "/08/01");
+                            boolDateFlag1 = false;
+                            boolDateFlag2 = true;
+                        }
+                        else
+                        {
+                            dtCurrent = DateTime.Parse(strBeginDate2);
+                            boolDateFlag1 = false;
+                            boolDateFlag2 = true;
+                        }
+                    }
+                    strMaxEmpDate = dtCurrent.AddDays(-180).ToShortDateString();
+                    ConsoleHelper.ConsoleHelper.wl("Current Date is :" + DateTime.Now.ToShortDateString() + ", Calculation Date is :" + dtCurrent);
+                    string strSQL = "update Users set TotalAmount = 0, UsedAmount = 0, RestAmount = 0 where EmpDate >=#" + strMaxEmpDate + "# or EmpDate is null";
+                    ahLink2.ExecuteNonQuery(strSQL);
+                    if ((DateTime.Now.Month == 2 && DateTime.Now.Day == 1) || boolDateFlag1)
+                    {
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where EmpDate <#" + strMaxEmpDate + "#";
+                        ahLink2.ExecuteNonQuery(strSQL);
+                    }
+                    if ((DateTime.Now.Month > 2 || (DateTime.Now.Month == 2 && DateTime.Now.Day != 1)) && DateTime.Now.Month <= 7)
+                    {
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate + "# ";
+                        ahLink2.ExecuteNonQuery(strSQL);
+                    }
+                    if ((DateTime.Now.Month == 8 && DateTime.Now.Day == 1) || boolDateFlag2)
+                    {
+                        strSQL = "update Users set RestAmount = RestAmount + 50000 where EmpDate <#" + strMaxEmpDate + "#";
+                        ahLink2.ExecuteNonQuery(strSQL);
+                    }
+                    if ((DateTime.Now.Month > 8 || (DateTime.Now.Month == 8 && DateTime.Now.Day != 1)) || DateTime.Now.Month == 1)
+                    {
+                        //strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
+                        //ahLink2.ExecuteNonQuery(strSQL);
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
+                        ahLink2.ExecuteNonQuery(strSQL);
+                    }
+                    if ((DateTime.Now.Month == 2 && DateTime.Now.Day == 1) || boolDateFlag1)
+                    {
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where RestAmount > 50000";
+                        ahLink2.ExecuteNonQuery(strSQL);
+                    }
+                    else if ((DateTime.Now.Month == 8 && DateTime.Now.Day == 1) || boolDateFlag2)
+                    {
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * 2 where RestAmount > 50000 * 2";
+                        ahLink2.ExecuteNonQuery(strSQL);
+                    }
+                    ConsoleHelper.ConsoleHelper.wl("Amount Calculation Running Success!");
+                }
+                catch (Exception ex)
+                {
+                    ConsoleHelper.ConsoleHelper.wl("Error:" + ex.ToString(), ConsoleColor.Red, ConsoleColor.Black);
+                }
+            }
+        }
+        private static double GetTotalPricefromUID(string UID)
+        {
+            double douResult = 0.00;
+            //double douCPrice = 0.00;
+            double douTPrice = 0.00;
+            string strBeginDate = DateTime.Now.Year.ToString() + "/2/1";
+            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
+            string strSQL = "select * from ApplicationInfo where Applicants='" + UID + "' and IsDelete=0 and AppState=9 and ApplicantsDate >= #" + strBeginDate + "# ";
+            DataTable dtSQL = ah.ReturnDataTable(strSQL);
+            if (dtSQL != null && dtSQL.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtSQL.Rows)
+                {
+                    if (dr["TransNo"] != null && dr["TransNo"].ToString() != "")
+                    {
+                        string strSQLdetail = "select * from ApplicationDetail where IsDelete = 0 and TransNo='" + dr["TransNo"].ToString() + "' ";
+                        AccessHelper.AccessHelper ahdetail = new AccessHelper.AccessHelper(LinkString2);
+                        DataTable dtdetail = ahdetail.ReturnDataTable(strSQLdetail);
+                        foreach (DataRow drdetail in dtdetail.Rows)
+                        {
+                            if (drdetail["ItemID"] != null && drdetail["ItemID"].ToString() != "")
+                            {
+                                if (!GetItemStatus(drdetail["ItemID"].ToString()))
+                                {
+                                    douTPrice += double.Parse(drdetail["FinalPrice"].ToString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                douTPrice = 0.00;
+            }
+            //douResult = douCPrice - douTPrice;
+            return douTPrice;
+        }
+        private static void fixMoney()
+        {
+            ConsoleHelper.ConsoleHelper.wl("Fix Rest Value Begin ...");
+            CalculatQuota();
+            AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
+            string strSQL = "select * from Users where IsDelete = 0";
+            DataTable dtSQL = ah.ReturnDataTable(strSQL);
+            if(strSQL != null && dtSQL.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtSQL.Rows)
+                {
+                    double douTPrice = GetTotalPricefromUID(dr["UID"].ToString());
+                    AccessHelper.AccessHelper ahdetail = new AccessHelper.AccessHelper(LinkString2);
+                    string strSQLdetail = "update Users set UsedAmount = " + douTPrice + ", RestAmount = RestAmount - " + douTPrice + " where UID = '" + dr["UID"].ToString() + "' ";
+                    ahdetail.ExecuteNonQuery(strSQLdetail);
+                    ConsoleHelper.ConsoleHelper.wl("UID :" + dr["UID"].ToString() + "; EmpDate is" + dr["EmpDate"].ToString() + "; Used Amount :" + douTPrice + "; Rest Amount is :" + (double.Parse(dr["RestAmount"].ToString()) - douTPrice).ToString());
+                }
+            }
+            ConsoleHelper.ConsoleHelper.wl("Fix Rest Value End.");
         }
         #endregion
     }

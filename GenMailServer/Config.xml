@@ -16,7 +16,7 @@
   <EmailRate>3</EmailRate>       <!--邮件发送间隔,按邮件服务器相关配置设置,默认3秒-->
   <MainRate>1800</MainRate>         <!--主事件轮询间隔,默认1800秒-->
   <DBCacheRate>3700</DBCacheRate>        <!--服务端数据缓存轮询间隔,默认3700秒.请勿设置为主事件轮询间隔时间的整倍数,以免同时启动.-->
-  <EmailTestFlag>0</EmailTestFlag>        <!--Debug模式开关-->
+  <EmailTestFlag>1</EmailTestFlag>        <!--Debug模式开关-->
   <EmailTestAddress>owdely@163.com</EmailTestAddress>       <!--Debug邮件接收地址-->
   <DBCacheProcessFlag>0</DBCacheProcessFlag>        <!--选择DBCache文件夹文件读取方式：0 为使用系统函数读取；1 为按照用户名列表读取-->
 </Config>
