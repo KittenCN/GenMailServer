@@ -868,19 +868,19 @@ line1:
                     }
                     if ((DateTime.Now.Month > 8 || (DateTime.Now.Month == 8 && DateTime.Now.Day != 1)) || DateTime.Now.Month == 1)
                     {
-                        //strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
-                        //ahLink2.ExecuteNonQuery(strSQL);
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
+                        ahLink2.ExecuteNonQuery(strSQL);
                         strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
                         ahLink2.ExecuteNonQuery(strSQL);
                     }
                     if ((DateTime.Now.Month == 2 && DateTime.Now.Day == 1) || boolDateFlag1)
                     {
-                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where RestAmount > 50000";
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 where RestAmount > 50000 or EmpDate <#" + strMaxEmpDate + "#";
                         ahLink2.ExecuteNonQuery(strSQL);
                     }
                     else if ((DateTime.Now.Month == 8 && DateTime.Now.Day == 1) || boolDateFlag2)
                     {
-                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * 2 where RestAmount > 50000 * 2";
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * 2 where RestAmount > 50000 * 2 or EmpDate <#" + strMaxEmpDate + "#";
                         ahLink2.ExecuteNonQuery(strSQL);
                     }
                     ConsoleHelper.ConsoleHelper.wl("Amount Calculation Running Success!");
@@ -893,7 +893,7 @@ line1:
         }
         private static double GetTotalPricefromUID(string UID)
         {
-            double douResult = 0.00;
+            //double douResult = 0.00;
             //double douCPrice = 0.00;
             double douTPrice = 0.00;
             string strBeginDate = DateTime.Now.Year.ToString() + "/2/1";
