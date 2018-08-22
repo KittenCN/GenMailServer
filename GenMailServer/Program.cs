@@ -934,7 +934,7 @@ line1:
             ConsoleHelper.ConsoleHelper.wl("Fix Rest Value Begin ...");
             CalculatQuota();
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
-            string strSQL = "select * from Users where IsDelete = 0";
+            string strSQL = "select * from Users where IsDelete = 0 and EmpDate is not null ";
             DataTable dtSQL = ah.ReturnDataTable(strSQL);
             if(strSQL != null && dtSQL.Rows.Count > 0)
             {
