@@ -160,6 +160,7 @@ line1:
                 dtCleanLastDay = DateTime.Now.Date;
                 ConsoleHelper.ConsoleHelper.wl("");
                 ConsoleHelper.ConsoleHelper.wl("Current DateTime is " + DateTime.Now.ToString() + "  ::Run Method of CleanLoginNum!");
+                boolCheckMoney = false;
             }
 
             if (intSecondShow > 0)
@@ -487,6 +488,7 @@ line1:
                 #region 总额度计算
                 ConsoleHelper.ConsoleHelper.wl("Running Amount Calculation Method...");
                 CalculatQuota();
+                FixLowZero();
                 #endregion
                 #region 远程数据缓存处理事件
                 ConsoleHelper.ConsoleHelper.wl("Checking DB Cache Directory...");
@@ -808,6 +810,12 @@ line1:
             }
             return boolResult;
         }
+        private static void FixLowZero()
+        {
+            AccessHelper.AccessHelper ahLink2 = new AccessHelper.AccessHelper(LinkString2);
+            string strSQL = "update Users set RestAmount = 0 where RestAmount < 0";
+            ahLink2.ExecuteNonQuery(strSQL);
+        }
         private static void CalculatQuota()
         {
             //计算额度
@@ -822,6 +830,7 @@ line1:
                     string strEndDate = DateTime.Parse(DateTime.Now.Year.ToString() + "/08/01 00:00:00").AddDays(-1).ToShortDateString();
                     string strBeginDate2 = DateTime.Now.Year.ToString() + "/8/1";
                     string strEndDate2 = DateTime.Parse(DateTime.Now.AddYears(1).Year.ToString() + "/02/01 00:00:00").AddDays(-1).ToShortDateString();
+                    string strBeginDate3 = DateTime.Parse(DateTime.Now.AddYears(-1).Year.ToString() + "/08/01 00:00:00").AddDays(-1).ToShortDateString();
                     DateTime dtCurrent = DateTime.Now;
                     Boolean boolDateFlag1 = false;
                     Boolean boolDateFlag2 = false;
@@ -858,7 +867,7 @@ line1:
                     }
                     if ((DateTime.Now.Month > 2 || (DateTime.Now.Month == 2 && DateTime.Now.Day != 1)) && DateTime.Now.Month <= 7)
                     {
-                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate + "# ";
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + dtCurrent + "#) / 180) where EmpDate =#" + strMaxEmpDate + "# ";
                         ahLink2.ExecuteNonQuery(strSQL);
                     }
                     if ((DateTime.Now.Month == 8 && DateTime.Now.Day == 1) || boolDateFlag2)
@@ -868,9 +877,9 @@ line1:
                     }
                     if ((DateTime.Now.Month > 8 || (DateTime.Now.Month == 8 && DateTime.Now.Day != 1)) || DateTime.Now.Month == 1)
                     {
-                        strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + strEndDate + "#) / 180)) + 50000 where EmpDate <#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
-                        ahLink2.ExecuteNonQuery(strSQL);
-                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + strEndDate2 + "#) / 180) where EmpDate <#" + strMaxEmpDate + "# and EmpDate >= #" + strBeginDate2 + "#";
+                        //strSQL = "update Users set UsedAmount = 0, RestAmount = (50000 * (datediff('d', EmpDate, #" + dtCurrent + "#) / 180)) + 50000 where EmpDate <=#" + strMaxEmpDate + "# and EmpDate < #" + strBeginDate2 + "#";
+                        //ahLink2.ExecuteNonQuery(strSQL);
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * (datediff('d', EmpDate, #" + dtCurrent + "#) / 180) where EmpDate =#" + strMaxEmpDate + "# ";
                         ahLink2.ExecuteNonQuery(strSQL);
                     }
                     if ((DateTime.Now.Month == 2 && DateTime.Now.Day == 1) || boolDateFlag1)
@@ -880,7 +889,7 @@ line1:
                     }
                     else if ((DateTime.Now.Month == 8 && DateTime.Now.Day == 1) || boolDateFlag2)
                     {
-                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * 2 where RestAmount > 50000 * 2 or EmpDate <#" + strMaxEmpDate + "#";
+                        strSQL = "update Users set UsedAmount = 0, RestAmount = 50000 * 2 where RestAmount > 50000 * 2 and EmpDate <#" + strMaxEmpDate + "#";
                         ahLink2.ExecuteNonQuery(strSQL);
                     }
                     ConsoleHelper.ConsoleHelper.wl("Amount Calculation Running Success!");
@@ -933,6 +942,7 @@ line1:
         {
             ConsoleHelper.ConsoleHelper.wl("Fix Rest Value Begin ...");
             CalculatQuota();
+            FixLowZero();
             AccessHelper.AccessHelper ah = new AccessHelper.AccessHelper(LinkString2);
             string strSQL = "select * from Users where IsDelete = 0 and EmpDate is not null ";
             DataTable dtSQL = ah.ReturnDataTable(strSQL);
